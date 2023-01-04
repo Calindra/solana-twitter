@@ -168,9 +168,22 @@ function mask(address) {
     return address.substring(0, 6) + '..' + address.substring(address.length - 4);
 }
 
+function onUploadImage(e: Event) {
+    console.log('>>> upload image, você gosta de paçoca?', e);
+}
+
 </script>
 
 <template>
+    <div>
+        <img class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.jpg"/>
+        <form @submit.prevent="onUploadImage">
+            <label for="thumbnail">Imagem de perfil:</label>
+            <input name="thumbnail" type="file" accept="image/png, image/jpeg" required />
+            <button class="text-white font-semibold rounded-full p-2 bg-pink-500" type="submit">Atualizar</button>
+        </form>
+
+    </div>
     <div v-if="wallet" class="border-b px-8 py-4 bg-gray-50 break-all">
         {{ wallet.publicKey.toBase58() }}
     </div>
@@ -212,7 +225,7 @@ function mask(address) {
                     <td>{{ mask(voucher.extra?.recipient) }}</td>
                     <td>{{ voucher.extra?.amount?.toString() }}</td>
                     <td>
-                        <button 
+                        <button
                             :disabled="!voucher.proof"
                             class="text-white px-4 py-2 rounded-full font-semibold"
                             :class="voucher.proof ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'"
@@ -234,5 +247,12 @@ function mask(address) {
 td, th {
     border: 1px solid #eee;
     padding: 5px;
+}
+.img-fluid {
+    width: 100%;
+    height: auto;
+}
+.thumbnail {
+    max-width: 200px;
 }
 </style>
