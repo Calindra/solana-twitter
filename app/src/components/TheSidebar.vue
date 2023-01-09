@@ -1,10 +1,7 @@
 <script setup>
-//import { useWallet } from 'solana-wallets-vue'
 import { connectMetaMaskWallet, useWorkspace } from '@/composables/useWorkspace'
 
-//const { connected } = useWallet()
 const { wallet } = useWorkspace()
-const { connected } = wallet
 
 function mask(address) {
     if (!address || typeof address !== 'string') {
@@ -51,7 +48,7 @@ function mask(address) {
                 </svg>
                 <div class="text-xl hidden md:block">Users</div>
             </router-link>
-            <router-link v-if="connected" :to="{ name: 'Profile' }" class="rounded-full hover:bg-gray-100 p-3 md:w-full inline-flex items-center space-x-4" active-class="font-bold" v-slot="{ isActive }">
+            <router-link v-if="wallet.connected" :to="{ name: 'Profile' }" class="rounded-full hover:bg-gray-100 p-3 md:w-full inline-flex items-center space-x-4" active-class="font-bold" v-slot="{ isActive }">
                 <svg v-if="isActive" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                 </svg>
@@ -62,9 +59,9 @@ function mask(address) {
             </router-link>
         </div>
         <div class="fixed bottom-8 right-8 md:static w-48 md:w-full">
-            <button v-if="connected"
+            <button v-if="wallet.connected"
                 class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 w-full" @click="copyAddress">
-                {{ mask(userAddress) }}
+                {{ mask(wallet.publicKey.toBase58()) }}
             </button>
             <button v-else class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 w-full"
                 @click="connectMetaMaskWallet">

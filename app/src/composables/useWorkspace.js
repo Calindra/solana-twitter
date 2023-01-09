@@ -1,15 +1,8 @@
 import { ref } from 'vue'
 import { ethers } from 'ethers'
-// import { useAnchorWallet } from 'solana-wallets-vue'
-// import { Connection, PublicKey } from '@solana/web3.js'
-// import { Provider, Program } from '@project-serum/anchor'
 import idl from '@/idl/solana_twitter.json'
 import { getWorkspace, onWalletConnected } from 'solana-cartesi-web3-adapter'
 
-// const clusterUrl = process.env.VUE_APP_CLUSTER_URL
-// const preflightCommitment = 'processed'
-// const commitment = 'processed'
-// const programID = new PublicKey(idl.metadata.address)
 const config = {
     idl: idl,
     inspectURL: `${process.env.VUE_APP_CARTESI_INSPECT_URL}`,
@@ -33,18 +26,6 @@ export const initWorkspace = () => {
         provider: ref(provider),
         program: ref(program),
     }
-
-    // const wallet = useAnchorWallet()
-    // const connection = new Connection(clusterUrl, commitment)
-    // const provider = computed(() => new Provider(connection, wallet.value, { preflightCommitment, commitment }))
-    // const program = computed(() => new Program(idl, programID, provider.value))
-
-    // workspace = {
-    //     wallet,
-    //     connection,
-    //     provider,
-    //     program,
-    // }
 }
 
 export async function connectMetaMaskWallet() {
@@ -64,7 +45,6 @@ export async function connectMetaMaskWallet() {
     // send ether and pay to change state within the blockchain.
     // For this, you need the account signer...
     const signer = provider.getSigner()
-    console.log("Signer", signer);
     await onWalletConnected({ ...config, signer });
 
     const { program, provider: providerEth, wallet, connection } = getWorkspace({ ...config, signer });
@@ -77,6 +57,7 @@ export async function connectMetaMaskWallet() {
     workspace.signer = signer;
     workspace.connection.value = connection;
     workspace.wallet.value.connected = true;
+    console.log('Wallet connected')
 }
 
 async function checkMetaMaskConnected() {
