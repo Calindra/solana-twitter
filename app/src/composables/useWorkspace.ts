@@ -8,11 +8,11 @@ import { SolanaTwitter } from '@/anchor/types/solana_twitter';
 import { getWorkspace, DevWorkspaceArgs, onWalletConnected } from 'solana-cartesi-web3-adapter';
 
 interface WorkspaceLocal {
-    wallet?: Ref<(AnchorWallet & { connected?: boolean }) | undefined>;
-    program: Ref<UnwrapRef<Program<SolanaTwitter>>>;
-    provider: Ref<UnwrapRef<AnchorProvider>>;
-    signer?: ethers.Signer;
-    connection: Ref<UnwrapRef<Connection>>;
+  wallet?: Ref<(AnchorWallet & { connected?: boolean }) | undefined>;
+  program: Ref<UnwrapRef<Program<SolanaTwitter>>>;
+  provider: Ref<UnwrapRef<AnchorProvider>>;
+  signer?: ethers.Signer;
+  connection: Ref<UnwrapRef<Connection>>;
 }
 
 const clusterUrl = process.env.VUE_APP_CLUSTER_URL as string

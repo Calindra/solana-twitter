@@ -14,7 +14,7 @@ const findTweetAddress = async (author: PublicKey, userTweetId: string, program:
 export const sendTweet = async (topic, content) => {
     const { wallet, program } = useWorkspace()
 
-    if (!wallet) throw new Error('Wallet not initialized')
+    if (!wallet?.value) throw new Error('Wallet not initialized')
 
     const userTweetId = Date.now().toString()
     const tweet = await findTweetAddress(wallet.value.publicKey, userTweetId, program);

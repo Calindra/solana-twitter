@@ -2,6 +2,7 @@ import { useWorkspace } from "@/composables";
 import { JWKInterface } from "arweave/node/lib/wallet";
 
 import Arweave, { Config } from "arweave/web";
+import pick from 'lodash.pick'
 
 class ArweaveTool {
   private static instance?: Arweave;
@@ -35,11 +36,59 @@ async function generateWallet(): Promise<[wallet: JWKInterface, err: null] | [wa
   }
 }
 
-export const uploadNFT = async (file: File) => {
+function castValidJSON(contentFile: string): JWKInterface {
+  try {
+    const inter: unknown = JSON.parse(contentFile);
+
+    if (typeof inter !== "object" || inter === null) {
+      throw new Error("Invalid parse JSON");
+    }
+
+    if (!("kty" in inter && "e" in inter && "n" in inter)) {
+      throw new Error("Invalid required property");
+    }
+
+    const cast = inter as JWKInterface;
+
+    const picked = pick(cast, [
+      "kty",
+      "e",
+      "n",
+      "d",
+      "p",
+      "q",
+      "dp",
+      "dq",
+      "qi",
+    ]);
+
+    return picked;
+  } catch (e) {
+    throw new Error("Invalid JSON", { cause: e });
+  }
+}
+
+async function getWalletFromKey(contentFile: string) {
+  const arweave = ArweaveTool.getInstance();
+  const validJson = castValidJSON(contentFile);
+
+  await arweave.wallets.jwkToAddress(validJson);
+}
+
+export const uploadKey = async (file: File) => {
+  if(!file.type.startsWith("application/json")) {
+    throw new Error("Invalid file type");
+  }
+
+  const contentFile = await file.text();
+  await getWalletFromKey(contentFile);
+}
+
+export const uploadNFT = async (imageFile: File) => {
   // const { } = useWorkspace();
 
-  console.log("uploading NFT", { file });
-  const arrayBuffer = await file.arrayBuffer();
+  console.log("uploading NFT", { imageFile });
+  const arrayBuffer = await imageFile.arrayBuffer();
   console.log("arrayBuffer", { arrayBuffer });
 
   const arweave = useArweave();
@@ -55,7 +104,7 @@ export const uploadNFT = async (file: File) => {
     data: arrayBuffer,
   }, key);
 
-  transaction.addTag("Content-Type", file.type);
+  transaction.addTag("Content-Type", imageFile.type);
   console.log("transaction", { transaction, key });
 
   await arweave.transactions.sign(transaction, key);
