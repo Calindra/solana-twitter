@@ -2,7 +2,12 @@ import { useWorkspace } from "@/composables";
 import { JWKInterface } from "arweave/node/lib/wallet";
 
 import Arweave, { Config } from "arweave/web";
+import Transactions from "arweave/web/transactions";
 import pick from 'lodash.pick'
+import dotenv from 'dotenv';
+import { Keypair } from '@solana/web3.js'
+
+dotenv.config();
 
 class ArweaveTool {
   private static instance?: Arweave;
@@ -84,6 +89,21 @@ export const uploadKey = async (file: File) => {
   await getWalletFromKey(contentFile);
 }
 
+type Metadata = Awaited<ReturnType<Transactions['post']>>
+
+export const saveJSONMetadata = async (jwk: JWKInterface, metadata: Metadata) => {
+  const value = JSON.stringify(metadata)
+  const key = JSON.stringify(jwk)
+  localStorage.setItem(key, value)
+ }
+
+export const mintNFT = async (uri: URL) => {
+  const { connection } = useWorkspace();
+  const keypair = Keypair.fromSecretKey(
+    Buffer.from(JSON.parse(process.env.SOLANA_KEYPAIR!.toString()))
+  );
+}
+
 export const uploadNFT = async (imageFile: File) => {
   // const { } = useWorkspace();
 
@@ -111,4 +131,6 @@ export const uploadNFT = async (imageFile: File) => {
 
   const response = await arweave.transactions.post(transaction);
   console.log("response", { response });
+
+  await saveJSONMetadata(key, response);
 };
