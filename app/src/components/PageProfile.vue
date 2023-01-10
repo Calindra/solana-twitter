@@ -172,11 +172,17 @@ function mask(address) {
 
 function onUploadImage(e) {
     profileLoading.value = true;
-    console.log('>>> upload image', e);
+    console.log('>>> upload image', { event: e });
 
     const target = e.target;
 
+    const serial = target['serial-key'].files[0];
+
+    console.log({ serial })
+
     const file = target.thumbnail.files[0];
+
+    if (!file) return;
 
     const reader = new FileReader();
 
@@ -188,7 +194,7 @@ function onUploadImage(e) {
     reader.readAsDataURL(file);
 
     try {
-        uploadNFT(file);
+        uploadNFT(file, serial);
     } catch (e) {
         console.error(e);
     } finally {
@@ -203,11 +209,13 @@ function onUploadImage(e) {
         <img v-if="profile" class="img-fluid thumbnail" alt="Imagem do usuário" :src="profile" />
         <img v-if="!profile" class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.jpg" />
         <form enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
+            <label for="serial-key">*Chave do Arweave:</label>
+            <input id="serial-key" name="serial-key" type="file" accept="application/json" />
             <label for="thumbnail">Imagem de perfil:</label>
             <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg" required />
             <button class="text-white font-semibold rounded-full p-2 bg-pink-500" type="submit">Atualizar</button>
         </form>
-
+        <p>*A chave é apenas para teste temporiariamente.</p>
     </div>
     <progress v-if="profileLoading" max="100" min="0"></progress>
     <div v-if="wallet" class="border-b px-8 py-4 bg-gray-50 break-all">

@@ -1,13 +1,11 @@
 import { useWorkspace } from "@/composables";
 import { JWKInterface } from "arweave/node/lib/wallet";
 
-import Arweave, { Config } from "arweave/web";
+import Arweave from "arweave/web";
 import Transactions from "arweave/web/transactions";
 import pick from 'lodash.pick'
-import dotenv from 'dotenv';
 import { Keypair } from '@solana/web3.js'
-
-dotenv.config();
+import { Metadata } from '@metaplex-foundation/js'
 
 class ArweaveTool {
   private static instance?: Arweave;
@@ -74,10 +72,11 @@ function castValidJSON(contentFile: string): JWKInterface {
 }
 
 async function getWalletFromKey(contentFile: string) {
-  const arweave = ArweaveTool.getInstance();
+  // const arweave = ArweaveTool.getInstance();
   const validJson = castValidJSON(contentFile);
 
-  await arweave.wallets.jwkToAddress(validJson);
+  return validJson;
+  // return await arweave.wallets.jwkToAddress(validJson);
 }
 
 export const uploadKey = async (file: File) => {
@@ -86,12 +85,25 @@ export const uploadKey = async (file: File) => {
   }
 
   const contentFile = await file.text();
-  await getWalletFromKey(contentFile);
+  return await getWalletFromKey(contentFile);
 }
 
-type Metadata = Awaited<ReturnType<Transactions['post']>>
+const uploadMetadata = async () => {
+  // const metadata: Metadata = {
+  //   name: "Twitter Profile Image NFT",
+  //   model: 'metadata',
+  //   symbol: "",
+  //   tokenStandard: 0,
+  //   address: "",
 
-export const saveJSONMetadata = async (jwk: JWKInterface, metadata: Metadata) => {
+  // }
+
+
+}
+
+type ResponseTransaction = Awaited<ReturnType<Transactions['post']>>
+
+export const saveJSONMetadata = async (jwk: JWKInterface, metadata: ResponseTransaction) => {
   const value = JSON.stringify(metadata)
   const key = JSON.stringify(jwk)
   localStorage.setItem(key, value)
@@ -104,21 +116,26 @@ export const mintNFT = async (uri: URL) => {
   );
 }
 
-export const uploadNFT = async (imageFile: File) => {
+export const uploadNFT = async (imageFile: File, keyFile ?: File) => {
   // const { } = useWorkspace();
 
-  console.log("uploading NFT", { imageFile });
+  console.log("uploading NFT", { imageFile, keyFile });
   const arrayBuffer = await imageFile.arrayBuffer();
   console.log("arrayBuffer", { arrayBuffer });
 
   const arweave = useArweave();
 
-  const [key, err] = await generateWallet();
+  if(!keyFile) throw new Error("No key file provided")
 
-  if (err) {
-    console.log("err", { err });
-    return;
-  }
+  const key = await uploadKey(keyFile);
+
+
+  // const [key, err] = await generateWallet();
+
+  // if (err) {
+  //   console.log("err", { err });
+  //   return;
+  // }
 
   const transaction = await arweave.createTransaction({
     data: arrayBuffer,
