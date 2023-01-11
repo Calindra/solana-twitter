@@ -90,7 +90,7 @@ export const uploadKey = async (file: File) => {
 
 const generateImageURI = (transactionId: string): URL => new URL(transactionId, 'https://arweave.net')
 
-const uploadMetadata = async (imageUrl: URL, mimeTypeImage: string, wallet: JWKInterface): Promise<void> => {
+const uploadMetadata = async (imageUrl: URL, mimeTypeImage: string, wallet: JWKInterface): Promise<string> => {
   const { program } = useWorkspace();
   const arweave = useArweave();
 
