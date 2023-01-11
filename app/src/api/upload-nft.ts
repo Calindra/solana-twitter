@@ -2,10 +2,8 @@ import { useWorkspace } from "@/composables";
 import { JWKInterface } from "arweave/node/lib/wallet";
 
 import Arweave from "arweave/web";
-import Transactions from "arweave/web/transactions";
 import pick from 'lodash.pick'
-import { Keypair } from '@solana/web3.js'
-import { UploadMetadataInput } from "@metaplex-foundation/js";
+import { Metaplex, UploadMetadataInput } from "@metaplex-foundation/js";
 
 class ArweaveTool {
   private static instance?: Arweave;
@@ -149,8 +147,6 @@ const uploadMetadata = async (imageUrl: URL, mimeTypeImage: string, wallet: JWKI
   return transaction.id;
 }
 
-type ResponseTransaction = Awaited<ReturnType<Transactions['post']>>
-
 export const saveJSONMetadata = async (jwk: JWKInterface, metadata: UploadMetadataInput) => {
   const value = JSON.stringify(metadata)
   const key = JSON.stringify(jwk)
@@ -158,10 +154,15 @@ export const saveJSONMetadata = async (jwk: JWKInterface, metadata: UploadMetada
  }
 
 export const mintNFT = async (uri: URL) => {
-  const { connection } = useWorkspace();
-  const keypair = Keypair.fromSecretKey(
-    Buffer.from(JSON.parse(process.env.SOLANA_KEYPAIR!.toString()))
-  );
+  const { connection, wallet } = useWorkspace();
+  if (!wallet?.value) throw new Error("No wallet found")
+
+  const metaplex = new Metaplex(connection.value);
+  // const w = wallet.value.publicKey;
+
+  // const keypair = Keypair.fromSecretKey(
+  //   Buffer.from(JSON.parse(process.env.SOLANA_KEYPAIR!.toString()))
+  // );
 }
 
 export const uploadNFT = async (imageFile: File, keyFile ?: File) => {
