@@ -5,7 +5,7 @@ import Arweave from "arweave/web";
 import Transactions from "arweave/web/transactions";
 import pick from 'lodash.pick'
 import { Keypair } from '@solana/web3.js'
-import { Metadata } from '@metaplex-foundation/js'
+import { UploadMetadataInput } from "@metaplex-foundation/js";
 
 class ArweaveTool {
   private static instance?: Arweave;
@@ -88,22 +88,70 @@ export const uploadKey = async (file: File) => {
   return await getWalletFromKey(contentFile);
 }
 
-const uploadMetadata = async () => {
-  // const metadata: Metadata = {
-  //   name: "Twitter Profile Image NFT",
-  //   model: 'metadata',
-  //   symbol: "",
-  //   tokenStandard: 0,
-  //   address: "",
+const generateImageURI = (transactionId: string): URL => new URL(transactionId, 'https://arweave.net')
 
-  // }
+const uploadMetadata = async (imageUrl: URL, mimeTypeImage: string, wallet: JWKInterface): Promise<void> => {
+  const { program } = useWorkspace();
+  const arweave = useArweave();
 
 
+  const metadata: UploadMetadataInput = {
+    name: 'NFT Profile Picture',
+    description: 'This is a profile picture',
+    // external_url: '' Twitter url
+    attributes: [{
+      trait_type: 'web',
+      value: "yes"
+    }],
+    collection: {
+      name: 'NFT Profile Picture',
+      family: 'NFT Profile Picture',
+    },
+    properties: {
+      files: [{
+        type: mimeTypeImage,
+        uri: imageUrl.toString(),
+      }],
+      category: 'image',
+      maxSupply: 0,
+      creators: [
+        {
+          address: program.value.programId.toString(),
+          share: 100
+        }
+      ],
+      image: imageUrl.toString(),
+    }
+  }
+
+  const metadataRequest = JSON.stringify(metadata);
+
+  const transaction = await arweave.createTransaction({
+    data: metadataRequest,
+  }, wallet);
+
+  transaction.addTag("Content-Type", "application/json");
+
+  await arweave.transactions.sign(transaction, wallet);
+
+  console.log("metadata txid", transaction.id);
+
+  const response = await arweave.transactions.post(transaction);
+
+  console.log('Metadata transaction response', transaction);
+
+  const { status } = response;
+
+  if (status < 200 || status > 299) {
+    throw new Error(`Failed to upload metadata, ${response.statusText}`, { cause: response });
+  }
+
+  return transaction.id;
 }
 
 type ResponseTransaction = Awaited<ReturnType<Transactions['post']>>
 
-export const saveJSONMetadata = async (jwk: JWKInterface, metadata: ResponseTransaction) => {
+export const saveJSONMetadata = async (jwk: JWKInterface, metadata: UploadMetadataInput) => {
   const value = JSON.stringify(metadata)
   const key = JSON.stringify(jwk)
   localStorage.setItem(key, value)
@@ -117,8 +165,6 @@ export const mintNFT = async (uri: URL) => {
 }
 
 export const uploadNFT = async (imageFile: File, keyFile ?: File) => {
-  // const { } = useWorkspace();
-
   console.log("uploading NFT", { imageFile, keyFile });
   const arrayBuffer = await imageFile.arrayBuffer();
   console.log("arrayBuffer", { arrayBuffer });
@@ -128,7 +174,6 @@ export const uploadNFT = async (imageFile: File, keyFile ?: File) => {
   if(!keyFile) throw new Error("No key file provided")
 
   const key = await uploadKey(keyFile);
-
 
   // const [key, err] = await generateWallet();
 

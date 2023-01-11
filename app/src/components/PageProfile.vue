@@ -212,7 +212,7 @@ function onUploadImage(e) {
             <label for="serial-key">*Chave do Arweave:</label>
             <input id="serial-key" name="serial-key" type="file" accept="application/json" />
             <label for="thumbnail">Imagem de perfil:</label>
-            <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg" required />
+            <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required />
             <button class="text-white font-semibold rounded-full p-2 bg-pink-500" type="submit">Atualizar</button>
         </form>
         <p>*A chave é apenas para teste temporiariamente.</p>
