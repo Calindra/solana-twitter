@@ -3,7 +3,8 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 
 import Arweave from "arweave/web";
 import pick from 'lodash.pick'
-import { Metaplex, UploadMetadataInput } from "@metaplex-foundation/js";
+import { Metaplex, toBigNumber, UploadMetadataInput } from "@metaplex-foundation/js";
+import { Connection } from "@solana/web3.js";
 
 class ArweaveTool {
   private static instance?: Arweave;
@@ -153,16 +154,46 @@ export const saveJSONMetadata = async (jwk: JWKInterface, metadata: UploadMetada
   localStorage.setItem(key, value)
  }
 
+ /**
+  *
+  * @see https://solanacookbook.com/references/nfts.html#mint-the-nft
+  */
 export const mintNFT = async (uri: URL) => {
-  const { connection, wallet } = useWorkspace();
-  if (!wallet?.value) throw new Error("No wallet found")
+  const { wallet,  connection } = useWorkspace();
+  if (!wallet?.value) throw new Error("No wallet found");
+  if (!wallet.value.connected) throw new Error("Wallet not connected");
 
-  const metaplex = new Metaplex(connection.value);
-  // const w = wallet.value.publicKey;
+  const conn = connection.value as any as Connection;
+
+  const metaplex = new Metaplex(conn);
 
   // const keypair = Keypair.fromSecretKey(
   //   Buffer.from(JSON.parse(process.env.SOLANA_KEYPAIR!.toString()))
   // );
+
+  const maxSupply = toBigNumber(1);
+
+  const mintNFTResponse = await metaplex.nfts().create({
+    uri: uri.toString(),
+    maxSupply,
+    name: 'Profile NFT',
+    sellerFeeBasisPoints: 0,
+  });
+}
+
+/**
+ * @see https://solanacookbook.com/references/nfts.html#how-to-get-nft-metadata
+ */
+const getNFTMetadata = async () => {
+  const { connection, program } = useWorkspace();
+  const conn = connection.value as any as Connection;
+
+  const metaplex = new Metaplex(conn);
+
+  // const mint = new PublicKey("Ay1U9DWphDgc7hq58Yj1yHabt91zTzvV2YJbAWkPNbaK");
+
+  // const nft = await metaplex.nfts().findByToken(program.value.programId);
+
 }
 
 export const uploadNFT = async (imageFile: File, keyFile ?: File) => {
