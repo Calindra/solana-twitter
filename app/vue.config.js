@@ -21,6 +21,7 @@ module.exports = defineConfig({
                 util: false,
                 path: false,
                 stream: false,
+                zlib: require.resolve("browserify-zlib"),
             }
         }
     }
