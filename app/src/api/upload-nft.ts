@@ -167,18 +167,15 @@ export const mintNFT = async (uri: URL) => {
 
   const metaplex = new Metaplex(conn);
 
-  // const keypair = Keypair.fromSecretKey(
-  //   Buffer.from(JSON.parse(process.env.SOLANA_KEYPAIR!.toString()))
-  // );
-
-  const maxSupply = toBigNumber(1);
-
   const mintNFTResponse = await metaplex.nfts().create({
     uri: uri.toString(),
-    maxSupply,
     name: 'Profile NFT',
     sellerFeeBasisPoints: 0,
   });
+
+  console.log('Response', mintNFTResponse);
+
+  return mintNFTResponse;
 }
 
 /**

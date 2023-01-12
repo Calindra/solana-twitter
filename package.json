@@ -4,11 +4,7 @@
         "start": "cd app && npm run serve"
     },
     "dependencies": {
-        "@metaplex-foundation/js": "^0.17.12",
-        "@project-serum/anchor": "^0.21.0",
-        "@types/lodash.pick": "^4.4.7",
-        "arweave": "^1.11.8",
-        "lodash.pick": "^4.4.0"
+        "@project-serum/anchor": "^0.21.0"
     },
     "devDependencies": {
         "@types/mocha": "^9.0.0",
