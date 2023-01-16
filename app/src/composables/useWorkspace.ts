@@ -17,7 +17,7 @@ const config: DevWorkspaceArgs<SolanaTwitter> = {
     idl: idl as any,
     inspectURL: `${process.env.VUE_APP_CARTESI_INSPECT_URL}`,
     graphqlURL: `${process.env.VUE_APP_CARTESI_GRAPHQL_URL}`,
-    contractAddress: '0xA17BE28F84C89474831261854686a6357B7B9c1E',
+    contractAddress: `${process.env.VUE_APP_CARTESI_ROLLUPS}`,
     report: {
         maxRetry: 10,
         baseDelay: 1000,
@@ -120,3 +120,17 @@ function createAdaptedWorkspace() {
         console.log(error);
     }
 }
+
+async function getTokenAccountsByOwner() {
+    const { connection, wallet, provider, program } = getWorkspace<SolanaTwitter>(config)
+    const ownerAddress = wallet.publicKey;
+    const programId = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+    const accounts = await connection.getTokenAccountsByOwner(ownerAddress, {
+        programId
+    })
+    console.log(accounts);
+}
+
+setTimeout(() => {
+    getTokenAccountsByOwner()
+}, 3000)

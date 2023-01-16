@@ -1,10 +1,12 @@
 use std::io;
 
-use cartesi_solana::adapter::call_solana_program;
+use cartesi_solana::executor::create_executor;
 use solana_twitter::entry;
 
-
 fn main() -> io::Result<()> {
-    call_solana_program(entry)?;
+    let mut executor = create_executor();
+    executor.get_processor_args(|program_id, accounts, data| {
+        entry(&program_id, &accounts, &data).unwrap();
+    });
     Ok(())
 }

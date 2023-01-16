@@ -1,8 +1,8 @@
-/*
+//*
 use anchor_lang::prelude::*;
 use anchor_lang::{self, solana_program::system_program};
 // */
-//*
+/*
 use cartesi_solana::anchor_lang::prelude::*;
 use cartesi_solana::anchor_lang::{self, solana_program::system_program};
 // */
