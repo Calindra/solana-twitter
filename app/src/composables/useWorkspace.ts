@@ -120,17 +120,3 @@ function createAdaptedWorkspace() {
         console.log(error);
     }
 }
-
-async function getTokenAccountsByOwner() {
-    const { connection, wallet, provider, program } = getWorkspace<SolanaTwitter>(config)
-    const ownerAddress = wallet.publicKey;
-    const programId = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
-    const accounts = await connection.getTokenAccountsByOwner(ownerAddress, {
-        programId
-    })
-    console.log(accounts);
-}
-
-setTimeout(() => {
-    getTokenAccountsByOwner()
-}, 3000)
