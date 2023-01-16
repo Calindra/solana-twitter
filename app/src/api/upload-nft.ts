@@ -6,6 +6,8 @@ import pick from 'lodash.pick'
 import { Metaplex, toBigNumber, UploadMetadataInput } from "@metaplex-foundation/js";
 import { Connection } from "@solana/web3.js";
 
+const isOk = (status: number) => status < 200 || status >= 300;
+
 class ArweaveTool {
   private static instance?: Arweave;
   public static getInstance(): Arweave {
@@ -139,9 +141,7 @@ const uploadMetadata = async (imageUrl: URL, mimeTypeImage: string, wallet: JWKI
 
   console.log('Metadata transaction response', transaction);
 
-  const { status } = response;
-
-  if (status < 200 || status > 299) {
+  if (isOk(response.status)) {
     throw new Error(`Failed to upload metadata, ${response.statusText}`, { cause: response });
   }
 
@@ -223,5 +223,8 @@ export const uploadNFT = async (imageFile: File, keyFile ?: File) => {
   const response = await arweave.transactions.post(transaction);
   console.log("response", { response });
 
-  await saveJSONMetadata(key, response);
+  if (!isOk(response.status)) throw new Error(`Failed to upload image, ${response.statusText}`, { cause: response });
+
+
+  // await saveJSONMetadata(key, response);
 };
