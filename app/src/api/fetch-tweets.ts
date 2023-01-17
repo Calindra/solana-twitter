@@ -34,8 +34,6 @@ export const paginateTweets = (filters = [], perPage = 6, onNewPage = (..._any) 
             dataSlice: { offset: 40, length: 8 },
         })
 
-        console.log('ok', allTweets.map(t => t.pubkey.toString()))
-
         // Parse the timestamp from the account's data.
         const allTweetsWithTimestamps = allTweets.map(({ account, pubkey }) => ({
             pubkey,
@@ -51,7 +49,6 @@ export const paginateTweets = (filters = [], perPage = 6, onNewPage = (..._any) 
         const tweets = await program.value.account.tweet.fetchMultiple(paginatedPublicKeys)
         return tweets.reduce<unknown[]>((accumulator, tweet, index) => {
             const publicKey = paginatedPublicKeys[index];
-            console.log(publicKey.toString(), tweet);
             accumulator.push(new Tweet(publicKey, tweet as any))
             return accumulator
         }, [])

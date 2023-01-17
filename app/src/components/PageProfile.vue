@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import { paginateTweets, authorFilter, uploadNFT } from '@/api'
 import TweetForm from '@/components/TweetForm'
 import TweetList from '@/components/TweetList'
+import NFTList from '@/components/NFTList'
 import { useWorkspace, isCartesiDAppEnv } from '@/composables'
 import { cartesiRollups } from '@/cartesi/utils/cartesi'
 import { IERC20__factory } from "@cartesi/rollups";
@@ -13,6 +14,7 @@ import { loadVouchers, executeVoucher } from "@/cartesi/utils/vouchers";
 import { convertEthAddress2Solana } from '@/cartesi/solana/adapter'
 import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token';
 
+const showVouchers = ref(false)
 const tweets = ref([])
 const { wallet, connection } = useWorkspace()
 
@@ -58,7 +60,6 @@ async function loadBalance(ethTokenAddress, connection) {
         console.log('no signer')
         return
     }
-    console.log('load token balance')
 
     const mint = convertEthAddress2Solana(ethTokenAddress)
     const address = await signer.getAddress()
@@ -74,18 +75,22 @@ async function loadBalance(ethTokenAddress, connection) {
         solanaTokenAmount.value = tokenAccountInfo.amount
     } catch (e) {
         if (e?.constructor?.name === 'TokenAccountNotFoundError') {
-            console.log('Account not found')
+            console.log('TokenAccount not found')
         } else {
             throw e
         }
     }
 
-    const erc20Contract = IERC20__factory.connect(
-        ethTokenAddress,
-        signer
-    );
-    const balance = await erc20Contract.balanceOf(address)
-    ethersTokenAmount.value = balance
+    try {
+        const erc20Contract = IERC20__factory.connect(
+            ethTokenAddress,
+            signer
+        );
+        const balance = await erc20Contract.balanceOf(address)
+        ethersTokenAmount.value = balance
+    } catch(e) {
+        console.log('erc20 balance error')
+    }
 }
 
 async function send() {
@@ -149,7 +154,6 @@ async function emitVoucher() {
 
 async function listVouchers() {
     vouchers.value = await loadVouchers({})
-    console.log('vouchers', vouchers.value);
 }
 
 async function execVoucher(id) {
@@ -221,7 +225,14 @@ function onUploadImage(e) {
     <div v-if="wallet" class="border-b px-8 py-4 bg-gray-50 break-all">
         {{ wallet.publicKey.toBase58() }}
     </div>
-    <div v-if="isCartesi" class="border-b px-8 py-4 break-all">
+    <NFT-list></NFT-list>
+
+    <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+        @click="() => showVouchers = !showVouchers">
+        Vouchers
+    </button>
+
+    <div v-if="isCartesi && showVouchers" class="border-b px-8 py-4 break-all">
         <input type="text" placeholder="token" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
             :value="effectiveToken" @input="token = $event.target.value">
         <div class="py-4 break-all">
@@ -268,9 +279,7 @@ function onUploadImage(e) {
                 </tr>
             </tbody>
         </table>
-
     </div>
-
     <tweet-form @added="addTweet"></tweet-form>
     <tweet-list v-model:tweets="tweets" :loading="loading" :has-more="hasNextPage" @more="getNextPage"></tweet-list>
 </template>
