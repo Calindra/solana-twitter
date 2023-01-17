@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import { paginateTweets, authorFilter, uploadNFT } from '@/api'
 import TweetForm from '@/components/TweetForm'
 import TweetList from '@/components/TweetList'
+import NFTList from '@/components/NFTList'
 import { useWorkspace, isCartesiDAppEnv } from '@/composables'
 import { cartesiRollups } from '@/cartesi/utils/cartesi'
 import { IERC20__factory } from "@cartesi/rollups";
@@ -58,7 +59,6 @@ async function loadBalance(ethTokenAddress, connection) {
         console.log('no signer')
         return
     }
-    console.log('load token balance')
 
     const mint = convertEthAddress2Solana(ethTokenAddress)
     const address = await signer.getAddress()
@@ -74,18 +74,22 @@ async function loadBalance(ethTokenAddress, connection) {
         solanaTokenAmount.value = tokenAccountInfo.amount
     } catch (e) {
         if (e?.constructor?.name === 'TokenAccountNotFoundError') {
-            console.log('Account not found')
+            console.log('TokenAccount not found')
         } else {
             throw e
         }
     }
 
-    const erc20Contract = IERC20__factory.connect(
-        ethTokenAddress,
-        signer
-    );
-    const balance = await erc20Contract.balanceOf(address)
-    ethersTokenAmount.value = balance
+    try {
+        const erc20Contract = IERC20__factory.connect(
+            ethTokenAddress,
+            signer
+        );
+        const balance = await erc20Contract.balanceOf(address)
+        ethersTokenAmount.value = balance
+    } catch(e) {
+        console.log('erc20 balance error')
+    }
 }
 
 async function send() {
@@ -149,7 +153,6 @@ async function emitVoucher() {
 
 async function listVouchers() {
     vouchers.value = await loadVouchers({})
-    console.log('vouchers', vouchers.value);
 }
 
 async function execVoucher(id) {
@@ -271,6 +274,7 @@ function onUploadImage(e) {
 
     </div>
 
+    <NFT-list></NFT-list>
     <tweet-form @added="addTweet"></tweet-form>
     <tweet-list v-model:tweets="tweets" :loading="loading" :has-more="hasNextPage" @more="getNextPage"></tweet-list>
 </template>
