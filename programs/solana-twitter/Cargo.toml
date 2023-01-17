@@ -16,4 +16,4 @@ default = []
 
 [dependencies]
 anchor-lang = "0.25.0"
-cartesi-solana = "0.2.0"
+cartesi-solana = "0.3.0"
