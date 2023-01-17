@@ -171,6 +171,7 @@ export const mintNFT = async (uri: URL) => {
     uri: uri.toString(),
     name: 'Profile NFT',
     sellerFeeBasisPoints: 0,
+    maxSupply: toBigNumber(1),
   });
 
   console.log('Response', mintNFTResponse);
