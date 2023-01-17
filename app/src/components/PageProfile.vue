@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watchEffect } from 'vue'
 import { ethers } from "ethers";
-import { paginateTweets, authorFilter } from '@/api'
+import { paginateTweets, authorFilter, uploadNFT } from '@/api'
 import TweetForm from '@/components/TweetForm'
 import TweetList from '@/components/TweetList'
 import { useWorkspace, isCartesiDAppEnv } from '@/composables'
@@ -25,9 +25,11 @@ const { prefetch, hasNextPage, getNextPage, loading } = paginateTweets(filters, 
 const token = ref('0x67d269191c92Caf3cD7723F116c85e6E9bf55933')
 //const token = ref('')
 const vouchers = ref([])
+const profile = ref('')
+const profileLoading = ref(false)
 
 watchEffect(() => {
-    if (!wallet.value) return;
+    if (!wallet?.value) return;
     loadBalance(token.value, connection.value, wallet);
     listVouchers();
     tweets.value = [];
@@ -168,9 +170,54 @@ function mask(address) {
     return address.substring(0, 6) + '..' + address.substring(address.length - 4);
 }
 
+function onUploadImage(e) {
+    profileLoading.value = true;
+    console.log('>>> upload image', { event: e });
+
+    const target = e.target;
+
+    const serial = target['serial-key'].files[0];
+
+    console.log({ serial })
+
+    const file = target.thumbnail.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        profile.value = e.target.result;
+    //     console.log(e.target.result);
+    }
+
+    reader.readAsDataURL(file);
+
+    try {
+        uploadNFT(file, serial);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        profileLoading.value = false;
+    }
+}
+
 </script>
 
 <template>
+    <div v-if="!profileLoading">
+        <img v-if="profile" class="img-fluid thumbnail" alt="Imagem do usuário" :src="profile" />
+        <img v-if="!profile" class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.jpg" />
+        <form enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
+            <label for="serial-key">*Chave do Arweave:</label>
+            <input id="serial-key" name="serial-key" type="file" accept="application/json" />
+            <label class="block" for="thumbnail">Imagem de perfil:</label>
+            <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required />
+            <button class="text-white font-semibold rounded-full p-2 bg-pink-500" type="submit">Atualizar</button>
+        </form>
+        <p>*A chave é apenas para teste temporiariamente.</p>
+    </div>
+    <progress v-if="profileLoading" max="100" min="0"></progress>
     <div v-if="wallet" class="border-b px-8 py-4 bg-gray-50 break-all">
         {{ wallet.publicKey.toBase58() }}
     </div>
@@ -212,9 +259,7 @@ function mask(address) {
                     <td>{{ mask(voucher.extra?.recipient) }}</td>
                     <td>{{ voucher.extra?.amount?.toString() }}</td>
                     <td>
-                        <button 
-                            :disabled="!voucher.proof"
-                            class="text-white px-4 py-2 rounded-full font-semibold"
+                        <button :disabled="!voucher.proof" class="text-white px-4 py-2 rounded-full font-semibold"
                             :class="voucher.proof ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'"
                             @click="() => execVoucher(voucher.id)">
                             Exec
@@ -231,8 +276,18 @@ function mask(address) {
 </template>
 
 <style scoped>
-td, th {
+td,
+th {
     border: 1px solid #eee;
     padding: 5px;
+}
+
+.img-fluid {
+    width: 100%;
+    height: auto;
+}
+
+.thumbnail {
+    max-width: 200px;
 }
 </style>

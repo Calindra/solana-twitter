@@ -13,6 +13,9 @@ const findTweetAddress = async (author: PublicKey, userTweetId: string, program:
 
 export const sendTweet = async (topic, content) => {
     const { wallet, program } = useWorkspace()
+
+    if (!wallet?.value) throw new Error('Wallet not initialized')
+
     const userTweetId = Date.now().toString()
     const tweet = await findTweetAddress(wallet.value.publicKey, userTweetId, program);
     await program.value.rpc.sendTweet(topic, content, userTweetId, {
