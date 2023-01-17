@@ -1,10 +1,18 @@
+interface MetadataResponse {
+    image: string;
+}
 
-const cachedPromises = new Map<String, Promise<any>>();
+const cachedPromises = new Map<String, Promise<MetadataResponse>>();
 
-async function _fetchMetadata(uri: string) {
+async function _fetchMetadata(uri: string): Promise<MetadataResponse> {
     const res = await fetch(uri, { redirect: 'follow' });
-    const metadata = await res.json();
-    return metadata;
+    const metadata: unknown = await res.json();
+
+    if (typeof metadata != 'object' || metadata == null || !('image' in metadata)) {
+        throw new Error('Invalid metadata');
+    }
+
+    return metadata as MetadataResponse;
 }
 
 export async function fetchMetadata(nft: { uri: string }) {
