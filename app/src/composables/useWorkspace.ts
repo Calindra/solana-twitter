@@ -1,5 +1,5 @@
-import { computed, ref } from 'vue'
-import { useAnchorWallet } from 'solana-wallets-vue'
+import { computed, Ref, ref, UnwrapRef } from 'vue'
+import { AnchorWallet, useAnchorWallet } from 'solana-wallets-vue'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { AnchorProvider, Program } from '@project-serum/anchor'
 import { ethers } from "ethers";
@@ -7,11 +7,19 @@ import idl from '@/anchor/idl/solana_twitter.json'
 import { SolanaTwitter } from '@/anchor/types/solana_twitter';
 import { getWorkspace, DevWorkspaceArgs, onWalletConnected } from 'solana-cartesi-web3-adapter';
 
-const clusterUrl = process.env.VUE_APP_CLUSTER_URL as any
+interface WorkspaceLocal {
+    wallet?: Ref<(AnchorWallet & { connected?: boolean }) | undefined>;
+    program: Ref<UnwrapRef<Program<SolanaTwitter>>>;
+    provider: Ref<UnwrapRef<AnchorProvider>>;
+    signer?: ethers.Signer;
+    connection: Ref<UnwrapRef<Connection>>;
+}
+
+const clusterUrl = process.env.VUE_APP_CLUSTER_URL as string
 const preflightCommitment = 'processed'
 const commitment = 'processed'
 const programID = new PublicKey(idl.metadata.address)
-let workspace: any = null
+let workspace: null | WorkspaceLocal = null
 
 const config: DevWorkspaceArgs<SolanaTwitter> = {
     idl: idl as any,
@@ -25,6 +33,10 @@ const config: DevWorkspaceArgs<SolanaTwitter> = {
 }
 
 export const useWorkspace = () => {
+    if (!workspace) {
+        throw new Error('Workspace not initialized')
+    }
+
     return workspace
 }
 
@@ -80,14 +92,28 @@ export async function connectMetaMaskWallet() {
 
     const { program, provider: providerEth, wallet, connection } = getWorkspace<SolanaTwitter>({ ...config, signer });
     if (!workspace) {
-        workspace = {}
+        workspace = {
+            wallet: ref(wallet),
+            connection: ref(connection),
+            provider: ref(providerEth),
+            program: ref(program),
+        };
+
+        return;
     }
-    workspace.wallet.value = wallet;
+
+    if (workspace.wallet) {
+        workspace.wallet.value = wallet;
+        workspace.wallet.value.connected = true;
+    } else {
+        workspace.wallet = ref(wallet);
+    }
+
     workspace.program.value = program;
     workspace.provider.value = providerEth;
     workspace.signer = signer;
     workspace.connection.value = connection;
-    workspace.wallet.value.connected = true;
+    workspace.wallet.value!.connected = true;
 }
 
 async function checkMetaMaskConnected() {

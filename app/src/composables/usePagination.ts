@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+// import image from '../assets/placeholder.jpg'
 
 export const usePagination = (perPage, prefetchCb, pageCb) => {
     perPage = ref(perPage);
@@ -6,6 +7,7 @@ export const usePagination = (perPage, prefetchCb, pageCb) => {
     const prefetchLoading = ref(true);
     const pageLoading = ref(false);
     const loading = computed(() => prefetchLoading.value || pageLoading.value);
+
 
     let prefetchPromise
 
@@ -28,7 +30,7 @@ export const usePagination = (perPage, prefetchCb, pageCb) => {
             page * perPage.value,
         );
     }
-    
+
     const hasPage = (page) => {
         return getPagePublicKeys(page).length > 0;
     }
