@@ -2,7 +2,7 @@
 import { computed, ref, toRefs } from 'vue'
 import { useAutoresizeTextarea, useCountCharacterLimit, useSlug } from '@/composables'
 import { updateTweet } from '@/api'
-import { useWorkspace } from '@/composables/useWorkspace'
+import { useWallet } from '@/composables/useWorkspace'
 
 
 // Props.
@@ -29,7 +29,7 @@ const characterLimitColour = computed(() => {
 })
 
 // Permissions.
-const { wallet } = useWorkspace()
+const { connected } = useWallet()
 const canTweet = computed(() => content.value && characterLimit.value > 0)
 
 // Actions.
@@ -42,7 +42,7 @@ const update = async () => {
 </script>
 
 <template>
-    <div v-if="wallet.connected">
+    <div v-if="connected">
         <div class="px-8 py-4 border-l-4 border-pink-500">
             <div class="py-1">
                 <h3 class="inline font-semibold" :title="tweet.author">

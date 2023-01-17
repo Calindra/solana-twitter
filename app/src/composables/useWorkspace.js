@@ -15,6 +15,11 @@ const config = {
 }
 
 let workspace = null
+let connected = ref(false)
+
+export const useWallet = () => {
+    return { connected }
+}
 
 export const useWorkspace = () => workspace
 
@@ -57,6 +62,7 @@ export async function connectMetaMaskWallet() {
     workspace.signer = signer;
     workspace.connection.value = connection;
     workspace.wallet.value.connected = true;
+    connected.value = true;
     console.log('Wallet connected')
 }
 
@@ -68,6 +74,8 @@ async function checkMetaMaskConnected() {
     const accounts = await ethereum.request({ method: 'eth_accounts' });
     if (accounts.length) {
         connectMetaMaskWallet()
+    } else {
+        connected.value = false;
     }
     ethereum.on('accountsChanged', checkMetaMaskConnected);
 }
