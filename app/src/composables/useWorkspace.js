@@ -63,7 +63,6 @@ export async function connectMetaMaskWallet() {
     workspace.connection.value = connection;
     workspace.wallet.value.connected = true;
     connected.value = true;
-    console.log('Wallet connected')
 }
 
 async function checkMetaMaskConnected() {
