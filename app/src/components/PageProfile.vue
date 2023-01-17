@@ -14,6 +14,7 @@ import { loadVouchers, executeVoucher } from "@/cartesi/utils/vouchers";
 import { convertEthAddress2Solana } from '@/cartesi/solana/adapter'
 import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token';
 
+const showVouchers = ref(false)
 const tweets = ref([])
 const { wallet, connection } = useWorkspace()
 
@@ -224,7 +225,14 @@ function onUploadImage(e) {
     <div v-if="wallet" class="border-b px-8 py-4 bg-gray-50 break-all">
         {{ wallet.publicKey.toBase58() }}
     </div>
-    <div v-if="isCartesi" class="border-b px-8 py-4 break-all">
+    <NFT-list></NFT-list>
+
+    <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+        @click="() => showVouchers = !showVouchers">
+        Vouchers
+    </button>
+
+    <div v-if="isCartesi && showVouchers" class="border-b px-8 py-4 break-all">
         <input type="text" placeholder="token" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
             :value="effectiveToken" @input="token = $event.target.value">
         <div class="py-4 break-all">
@@ -271,10 +279,7 @@ function onUploadImage(e) {
                 </tr>
             </tbody>
         </table>
-
     </div>
-
-    <NFT-list></NFT-list>
     <tweet-form @added="addTweet"></tweet-form>
     <tweet-list v-model:tweets="tweets" :loading="loading" :has-more="hasNextPage" @more="getNextPage"></tweet-list>
 </template>
