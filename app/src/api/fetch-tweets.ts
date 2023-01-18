@@ -29,7 +29,7 @@ export const paginateTweets = (filters = [], perPage = 6, onNewPage = (..._any) 
 
         const anyFilters = filters as any
         // Prefetch all tweets with their timestamps only.
-        const allTweets = await connection.value.getProgramAccounts(program.value.programId, {
+        const allTweets = await connection.getProgramAccounts(program.value.programId, {
             filters: [tweetDiscriminatorFilter, ...anyFilters.value],
             dataSlice: { offset: 40, length: 8 },
         })

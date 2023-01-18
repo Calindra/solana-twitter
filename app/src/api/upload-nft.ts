@@ -7,6 +7,7 @@ import {
   Metaplex,
   toBigNumber,
   UploadMetadataInput,
+  walletAdapterIdentity,
 } from "@metaplex-foundation/js";
 import { Connection } from "@solana/web3.js";
 
@@ -103,8 +104,11 @@ const uploadMetadata = async (
   mimeTypeImage: string,
   wallet: JWKInterface
 ): Promise<string> => {
-  const { program } = useWorkspace();
+  const { program, wallet: walletUser } = useWorkspace();
   const arweave = useArweave();
+
+  const address = walletUser?.value?.publicKey;
+  if (!address) throw new Error("No wallet found");
 
   const metadata: UploadMetadataInput = {
     name: "NFT Profile Picture",
@@ -131,7 +135,7 @@ const uploadMetadata = async (
       maxSupply: 0,
       creators: [
         {
-          address: program.value.programId.toString(),
+          address: address.toString(),
           share: 100,
         },
       ],
@@ -158,7 +162,7 @@ const uploadMetadata = async (
 
   console.log("Metadata transaction response", transaction);
 
-  if (isOk(response.status)) {
+  if (!isOk(response.status)) {
     throw new Error(`Failed to upload metadata, ${response.statusText}`, {
       cause: response,
     });
@@ -183,11 +187,19 @@ export const saveJSONMetadata = async (
 export const mintNFT = async (uri: URL) => {
   const { wallet, connection } = useWorkspace();
   if (!wallet?.value) throw new Error("No wallet found");
-  if (!wallet.value.connected) throw new Error("Wallet not connected");
 
-  const conn = connection.value as any as Connection;
+  const walletAdapter = walletAdapterIdentity(wallet.value);
+
+  console.log('wallet', {wallet: wallet.value, adapter: walletAdapter});
+
+  // if (!wallet.value.connected) throw new Error("Wallet not connected");
+
+  const conn = connection;
+
+  console.log('conn', {conn});
 
   const metaplex = new Metaplex(conn);
+  metaplex.use(walletAdapter);
 
   const mintNFTResponse = await metaplex.nfts().create({
     uri: uri.toString(),
@@ -195,8 +207,6 @@ export const mintNFT = async (uri: URL) => {
     sellerFeeBasisPoints: 0,
     maxSupply: toBigNumber(1),
   });
-
-  console.log("Response", mintNFTResponse);
 
   return mintNFTResponse;
 };
@@ -206,7 +216,7 @@ export const mintNFT = async (uri: URL) => {
  */
 const getNFTMetadata = async () => {
   const { connection, program } = useWorkspace();
-  const conn = connection.value as any as Connection;
+  const conn = connection;
 
   const metaplex = new Metaplex(conn);
 
@@ -259,7 +269,7 @@ export const uploadNFT = async (imageFile: File, keyFile?: File) => {
 
   const response = await arweave.transactions.post(transaction);
 
-  console.log("response", { response });
+  console.log("response image", { response });
 
   if (!isOk(response.status)) {
     throw new Error(`Failed to upload image, ${response.statusText}`, {
@@ -273,7 +283,11 @@ export const uploadNFT = async (imageFile: File, keyFile?: File) => {
 
   const result = await uploadMetadata(uri, imageFile.type, key);
 
-  console.log('result', result);
+  console.log('result metadata', result);
+
+  const responseMint = await mintNFT(uri);
+
+  console.log("response mint", responseMint);
 
   // await saveJSONMetadata(key, response);
 };

@@ -12,7 +12,7 @@ interface WorkspaceLocal {
     program: Ref<UnwrapRef<Program<SolanaTwitter>>>;
     provider: Ref<UnwrapRef<AnchorProvider>>;
     signer?: ethers.Signer;
-    connection: Ref<UnwrapRef<Connection>>;
+    connection: Connection;
 }
 
 const clusterUrl = process.env.VUE_APP_CLUSTER_URL as string
@@ -64,7 +64,7 @@ function createWorkspace() {
 
     workspace = {
         wallet,
-        connection: ref(connection),
+        connection,
         provider,
         program,
     }
@@ -94,7 +94,7 @@ export async function connectMetaMaskWallet() {
     if (!workspace) {
         workspace = {
             wallet: ref(wallet),
-            connection: ref(connection),
+            connection,
             provider: ref(providerEth),
             program: ref(program),
         };
@@ -112,7 +112,7 @@ export async function connectMetaMaskWallet() {
     workspace.program.value = program;
     workspace.provider.value = providerEth;
     workspace.signer = signer;
-    workspace.connection.value = connection;
+    workspace.connection = connection;
     workspace.wallet.value!.connected = true;
 }
 
@@ -138,7 +138,7 @@ function createAdaptedWorkspace() {
         const { connection, wallet, provider, program } = getWorkspace<SolanaTwitter>(config)
         workspace = {
             wallet: ref(wallet),
-            connection: ref(connection),
+            connection,
             provider: ref(provider),
             program: ref(program),
         }
