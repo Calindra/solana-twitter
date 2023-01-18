@@ -9,7 +9,8 @@ import {
   UploadMetadataInput,
   walletAdapterIdentity,
 } from "@metaplex-foundation/js";
-import { Connection } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { Address } from "@project-serum/anchor";
 
 const isOk = (status: number) => status >= 200 || status < 300;
 
@@ -225,19 +226,15 @@ const getNFTMetadata = async () => {
   // const nft = await metaplex.nfts().findByToken(program.value.programId);
 };
 
-async function initializeAccount(): Promise<void> {
+async function initializeAccount(tokenAccount: Address): Promise<void> {
   const { program } = useWorkspace();
 
-  // const result_call = await program.value.methods.initialize().accounts({
-  //   tokenAccount: {
-
-  //   },
-  // }).rpc();
+  const result_call = await program.value.methods.initialize().accounts({
+    tokenAccount,
+  }).rpc();
 }
 
 export const uploadNFT = async (imageFile: File, keyFile?: File) => {
-  initializeAccount();
-
   console.log("uploading NFT", { imageFile, keyFile });
   const arrayBuffer = await imageFile.arrayBuffer();
   console.log("arrayBuffer", { arrayBuffer });
@@ -288,6 +285,10 @@ export const uploadNFT = async (imageFile: File, keyFile?: File) => {
   const responseMint = await mintNFT(uri);
 
   console.log("response mint", responseMint);
+
+  const { tokenAddress } = responseMint;
+
+  initializeAccount(tokenAddress);
 
   // await saveJSONMetadata(key, response);
 };
