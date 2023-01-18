@@ -11,6 +11,7 @@ import {
 } from "@metaplex-foundation/js";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Address } from "@project-serum/anchor";
+import { setNFTasPFP } from "./pfp";
 
 const isOk = (status: number) => status >= 200 || status < 300;
 
@@ -212,35 +213,13 @@ export const mintNFT = async (uri: URL) => {
   return mintNFTResponse;
 };
 
-/**
- * @see https://solanacookbook.com/references/nfts.html#how-to-get-nft-metadata
- */
-const getNFTMetadata = async () => {
-  const { connection, program } = useWorkspace();
-  const conn = connection;
-
-  const metaplex = new Metaplex(conn);
-
-  // const mint = new PublicKey("Ay1U9DWphDgc7hq58Yj1yHabt91zTzvV2YJbAWkPNbaK");
-
-  // const nft = await metaplex.nfts().findByToken(program.value.programId);
-};
-
-async function initializeAccount(tokenAccount: Address): Promise<void> {
-  const { program } = useWorkspace();
-  const user = getUserAddress();
-
+async function initializeAccount(mintAddress: PublicKey): Promise<void> {
   try {
-    const resultCall = await program.value.methods.initialize().accounts({
-      tokenAccount,
-      user,
-    }).rpc();
-    console.log("result_call", { result_call: resultCall });
+    await setNFTasPFP({ mintAddress });
   } catch (e) {
-    console.error("error", { e });
+    console.error(e);
     throw e;
   }
-
 }
 
 export const uploadNFT = async (imageFile: File, keyFile?: File) => {
@@ -297,9 +276,9 @@ export const uploadNFT = async (imageFile: File, keyFile?: File) => {
 
   console.log("response mint", responseMint);
 
-  const { tokenAddress } = responseMint;
+  const { mintAddress } = responseMint;
 
-  initializeAccount(tokenAddress);
+  initializeAccount(mintAddress);
 
   // await saveJSONMetadata(key, response);
 };
