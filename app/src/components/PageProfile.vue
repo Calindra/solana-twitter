@@ -32,7 +32,7 @@ const profileLoading = ref(false)
 const pfpImage = ref('')
 watchEffect(() => {
     if (!wallet?.value) return;
-    loadBalance(token.value, connection.value, wallet);
+    loadBalance(token.value, connection, wallet);
     listVouchers();
     tweets.value = [];
     filters.value = [authorFilter(wallet.value.publicKey.toBase58())];
@@ -50,7 +50,7 @@ async function loadPFP() {
 
 const amount = ref(0)
 const effectiveToken = computed(() => {
-    loadBalance(token.value, connection.value, wallet)
+    loadBalance(token.value, connection, wallet)
     return token.value
 })
 

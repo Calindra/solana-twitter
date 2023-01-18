@@ -12,7 +12,7 @@ export async function setNFTasPFP(nft: any) {
         return;
     }
 
-    const pfp = await hasPFP();
+    const userData = await getUserData();
 
 
     const tokenAccount = getAssociatedTokenAddressSync(nft.mintAddress, owner)
@@ -20,13 +20,13 @@ export async function setNFTasPFP(nft: any) {
         Buffer.from("user"),
         owner.toBuffer(),
     ], program.value.programId)
-    if (pfp) {
+    if (userData) {
         await program.value.methods.update()
-        .accounts({
-            tokenAccount,
-            user
-        })
-        .rpc()
+            .accounts({
+                tokenAccount,
+                user
+            })
+            .rpc()
     } else {
         await program.value.methods.initialize()
             .accounts({
@@ -38,26 +38,28 @@ export async function setNFTasPFP(nft: any) {
     location.reload();
 }
 
-export async function hasPFP() {
+export async function getUserData() {
     try {
-        return getPFP()
+        const { program, wallet } = useWorkspace();
+        const owner = wallet?.value?.publicKey;
+        if (!owner) {
+            throw new Error('You must be connected');
+        }
+        const [user] = PublicKey.findProgramAddressSync([
+            Buffer.from("user"),
+            owner.toBuffer(),
+        ], program.value.programId)
+        const userData = await program.value.account.user.fetch(user)
+        return userData
     } catch (e) {
-        return false
+        return null
     }
 }
 
-export async function getPFP() {
-    const { program, wallet, connection } = useWorkspace();
-    const owner = wallet?.value?.publicKey;
-    if (!owner) {
-        alert('You must be connected');
-        return;
-    }
-    const [user] = PublicKey.findProgramAddressSync([
-        Buffer.from("user"),
-        owner.toBuffer(),
-    ], program.value.programId)
-    const userData = await program.value.account.user.fetch(user)
+export async function getPFP(): Promise<string> {
+    const { connection } = useWorkspace()
+    const userData = await getUserData()
+    if (!userData) return ''
     const metaplex = new Metaplex(connection)
     const nft = await metaplex.nfts().findByMint({ mintAddress: userData.pfp })
     const metadata = await fetchMetadata(nft)
