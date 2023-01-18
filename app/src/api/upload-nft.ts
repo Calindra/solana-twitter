@@ -141,7 +141,6 @@ const uploadMetadata = async (
           share: 100,
         },
       ],
-      image: imageUrl.toString(),
     },
   };
 
