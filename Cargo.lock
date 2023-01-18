@@ -448,9 +448,9 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "cartesi-solana"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "caf4f3c163af0647008f9766a82487575c3f8f134f5335ccebd09105a6d9c647"
+checksum = "729f3ee64512093cd4ecb7c5a3bef3f8eab8992893164bb020f01e0b1862e161"
 dependencies = [
  "base64 0.13.1",
  "bincode",

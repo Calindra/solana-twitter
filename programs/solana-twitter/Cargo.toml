@@ -20,4 +20,4 @@ anchor-spl = "0.26.0"
 
 # include Cartesi lib
 # cartesi-solana = { path = "../../../cartesi-solana" }
-cartesi-solana = "0.3.1"
+cartesi-solana = "0.3.2"
