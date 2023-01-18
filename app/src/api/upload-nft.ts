@@ -215,14 +215,18 @@ const getNFTMetadata = async () => {
   // const nft = await metaplex.nfts().findByToken(program.value.programId);
 };
 
-export const uploadNFT = async (imageFile: File, keyFile?: File) => {
+async function initializeAccount(): Promise<void> {
   const { program } = useWorkspace();
 
-  program.value.methods.initialize().accounts({
-    tokenAccount: {
+  // const result_call = await program.value.methods.initialize().accounts({
+  //   tokenAccount: {
 
-    },
-  });
+  //   },
+  // }).rpc();
+}
+
+export const uploadNFT = async (imageFile: File, keyFile?: File) => {
+  initializeAccount();
 
   console.log("uploading NFT", { imageFile, keyFile });
   const arrayBuffer = await imageFile.arrayBuffer();
