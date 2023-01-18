@@ -263,8 +263,7 @@ export const uploadNFT = async (imageFile: File, keyFile?: File) => {
     });
   }
 
-  // eslint-disable-next-line prefer-const
-  let uri = generateImageURI(transaction.id);
+  const uri = generateImageURI(transaction.id);
 
   console.log("uri", uri);
 
