@@ -12,7 +12,7 @@ const { wallet, connection } = useWorkspace()
 const allNFTs = ref([]);
 watchEffect(() => {
     if (wallet?.value?.connected || useWalletConnected) {
-        listNFTs(wallet.value, connection.value);
+        listNFTs(wallet.value, connection);
     }
 })
 
