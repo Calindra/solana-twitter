@@ -2,7 +2,8 @@
 import { computed, ref, toRefs } from 'vue'
 import { useAutoresizeTextarea, useCountCharacterLimit, useSlug } from '@/composables'
 import { updateTweet } from '@/api'
-import { useWallet } from 'solana-wallets-vue'
+import { useWallet } from '@/composables/useWorkspace'
+
 
 // Props.
 const props = defineProps({

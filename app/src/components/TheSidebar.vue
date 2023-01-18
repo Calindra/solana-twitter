@@ -1,5 +1,5 @@
 <script setup>
-import { WalletMultiButton, useWallet } from 'solana-wallets-vue'
+import { connectMetaMaskWallet, useWallet } from '@/composables/useWorkspace'
 const { connected } = useWallet()
 </script>
 
@@ -51,7 +51,14 @@ const { connected } = useWallet()
             </router-link>
         </div>
         <div class="fixed bottom-8 right-8 md:static w-48 md:w-full">
-            <wallet-multi-button></wallet-multi-button>
+            <button v-if="connected"
+                class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 w-full" @click="copyAddress">
+                Connected
+            </button>
+            <button v-else class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 w-full"
+                @click="connectMetaMaskWallet">
+                Connect MetaMask
+            </button>
         </div>
     </aside>
 </template>
