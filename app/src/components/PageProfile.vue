@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watchEffect } from 'vue'
 import { ethers } from "ethers";
-import { paginateTweets, authorFilter, uploadNFT } from '@/api'
+import { paginateTweets, authorFilter, uploadNFT, getPFP } from '@/api'
 import TweetForm from '@/components/TweetForm'
 import TweetList from '@/components/TweetList'
 import NFTList from '@/components/NFTList'
@@ -29,7 +29,7 @@ const token = ref('0x67d269191c92Caf3cD7723F116c85e6E9bf55933')
 const vouchers = ref([])
 const profile = ref('')
 const profileLoading = ref(false)
-
+const pfpImage = ref('')
 watchEffect(() => {
     if (!wallet?.value) return;
     loadBalance(token.value, connection.value, wallet);
@@ -37,7 +37,16 @@ watchEffect(() => {
     tweets.value = [];
     filters.value = [authorFilter(wallet.value.publicKey.toBase58())];
     prefetch().then(getNextPage);
+    loadPFP();
 })
+
+async function loadPFP() {
+    try {
+        pfpImage.value = await getPFP()
+    } catch(e) {
+        console.log('Load pfp error', e.message)
+    }
+}
 
 const amount = ref(0)
 const effectiveToken = computed(() => {
@@ -209,6 +218,9 @@ function onUploadImage(e) {
 </script>
 
 <template>
+    <div>
+        <img :src="pfpImage" />
+    </div>
     <div v-if="!profileLoading">
         <img v-if="profile" class="img-fluid thumbnail" alt="Imagem do usuário" :src="profile" />
         <img v-if="!profile" class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.jpg" />
