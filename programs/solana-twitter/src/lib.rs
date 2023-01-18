@@ -1,27 +1,29 @@
-//*
 use anchor_lang::prelude::*;
 use anchor_lang::{self, solana_program::system_program};
-// */
-/*
-use cartesi_solana::anchor_lang::prelude::*;
-use cartesi_solana::anchor_lang::{self, solana_program::system_program};
-// */
+use anchor_spl::token::TokenAccount;
+use std::mem::size_of;
+
 declare_id!("DEVemLxXHPz1tbnBbTVXtvNBHupP2RCBw1jTFN8Uz3FD");
 
 #[program]
 pub mod solana_twitter {
     use super::*;
-    pub fn send_tweet(ctx: Context<SendTweet>, topic: String, content: String, _user_tweet_id: String) -> Result<()> {
+    pub fn send_tweet(
+        ctx: Context<SendTweet>,
+        topic: String,
+        content: String,
+        _user_tweet_id: String,
+    ) -> Result<()> {
         let tweet: &mut Account<Tweet> = &mut ctx.accounts.tweet;
         let author: &Signer = &ctx.accounts.author;
         let clock: Clock = Clock::get().unwrap();
 
         if topic.chars().count() > 50 {
-            return Err(ErrorCode::TopicTooLong.into())
+            return Err(ErrorCode::TopicTooLong.into());
         }
 
         if content.chars().count() > 280 {
-            return Err(ErrorCode::ContentTooLong.into())
+            return Err(ErrorCode::ContentTooLong.into());
         }
 
         tweet.author = *author.key;
@@ -36,14 +38,14 @@ pub mod solana_twitter {
         let tweet: &mut Account<Tweet> = &mut ctx.accounts.tweet;
 
         if topic.chars().count() > 50 {
-            return Err(ErrorCode::TopicTooLong.into())
+            return Err(ErrorCode::TopicTooLong.into());
         }
 
         if content.chars().count() > 280 {
-            return Err(ErrorCode::ContentTooLong.into())
+            return Err(ErrorCode::ContentTooLong.into());
         }
         if tweet.author.key() != ctx.accounts.author.key() {
-            return Err(ErrorCode::Forbidden.into())
+            return Err(ErrorCode::Forbidden.into());
         }
         tweet.topic = topic;
         tweet.content = content;
@@ -53,8 +55,25 @@ pub mod solana_twitter {
 
     pub fn delete_tweet(ctx: Context<DeleteTweet>) -> Result<()> {
         if ctx.accounts.tweet.author.key() != ctx.accounts.author.key() {
-            return Err(ErrorCode::Forbidden.into())
+            return Err(ErrorCode::Forbidden.into());
         }
+        Ok(())
+    }
+
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        ctx.accounts.user.pfp = ctx.accounts.token_account.mint;
+        ctx.accounts.user.owner = ctx.accounts.owner.key();
+
+        Ok(())
+    }
+
+    pub fn update(ctx: Context<UpdateUser>) -> Result<()> {
+        if ctx.accounts.owner.key() != ctx.accounts.user.owner {
+            return Err(ErrorCode::Forbidden.into());
+        }
+
+        ctx.accounts.user.pfp = ctx.accounts.token_account.mint;
+
         Ok(())
     }
 }
@@ -98,6 +117,37 @@ pub struct Tweet {
     pub timestamp: i64,
     pub topic: String,
     pub content: String,
+}
+
+#[account]
+#[derive(Default)]
+pub struct User {
+    pfp: Pubkey,
+    pub owner: Pubkey,
+}
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(init, payer = owner, seeds = [b"user", owner.key().as_ref()], bump, space = 8 + size_of::<User>())]
+    pub user: Account<'info, User>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    system_program: Program<'info, System>,
+    #[account(
+        constraint = user.pfp != token_account.mint,
+        has_one = owner
+    )]
+    pub token_account: Account<'info, TokenAccount>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateUser<'info> {
+    #[account(mut)]
+    pub user: Account<'info, User>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    system_program: Program<'info, System>,
+    pub token_account: Account<'info, TokenAccount>,
 }
 
 const DISCRIMINATOR_LENGTH: usize = 8;

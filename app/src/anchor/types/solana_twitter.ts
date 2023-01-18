@@ -76,6 +76,58 @@ export type SolanaTwitter = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -99,6 +151,22 @@ export type SolanaTwitter = {
           {
             "name": "content",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "user",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pfp",
+            "type": "publicKey"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
           }
         ]
       }
@@ -201,6 +269,58 @@ export const IDL: SolanaTwitter = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "update",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAccount",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -224,6 +344,22 @@ export const IDL: SolanaTwitter = {
           {
             "name": "content",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "user",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pfp",
+            "type": "publicKey"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
           }
         ]
       }

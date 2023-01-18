@@ -15,8 +15,9 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "0.25.0"
+anchor-lang = "0.26.0"
+anchor-spl = "0.26.0"
 
 # include Cartesi lib
 # cartesi-solana = { path = "../../../cartesi-solana" }
-cartesi-solana = "0.3.0"
+cartesi-solana = "0.3.1"
