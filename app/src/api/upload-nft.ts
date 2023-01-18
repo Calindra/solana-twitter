@@ -1,4 +1,4 @@
-import { useWorkspace } from "@/composables";
+import { getUserAddress, useWorkspace } from "@/composables";
 import { JWKInterface } from "arweave/node/lib/wallet";
 
 import Arweave from "arweave/web";
@@ -105,7 +105,7 @@ const uploadMetadata = async (
   mimeTypeImage: string,
   wallet: JWKInterface
 ): Promise<string> => {
-  const { program, wallet: walletUser } = useWorkspace();
+  const { wallet: walletUser } = useWorkspace();
   const arweave = useArweave();
 
   const address = walletUser?.value?.publicKey;
@@ -125,6 +125,7 @@ const uploadMetadata = async (
       name: "NFT Profile Picture",
       family: "NFT Profile Picture",
     },
+    image: imageUrl.toString(),
     properties: {
       files: [
         {
@@ -228,10 +229,19 @@ const getNFTMetadata = async () => {
 
 async function initializeAccount(tokenAccount: Address): Promise<void> {
   const { program } = useWorkspace();
+  const user = getUserAddress();
 
-  const result_call = await program.value.methods.initialize().accounts({
-    tokenAccount,
-  }).rpc();
+  try {
+    const resultCall = await program.value.methods.initialize().accounts({
+      tokenAccount,
+      user,
+    }).rpc();
+    console.log("result_call", { result_call: resultCall });
+  } catch (e) {
+    console.error("error", { e });
+    throw e;
+  }
+
 }
 
 export const uploadNFT = async (imageFile: File, keyFile?: File) => {
@@ -278,11 +288,13 @@ export const uploadNFT = async (imageFile: File, keyFile?: File) => {
 
   console.log("uri", uri);
 
-  const result = await uploadMetadata(uri, imageFile.type, key);
+  const trxMetadata = await uploadMetadata(uri, imageFile.type, key);
 
-  console.log('result metadata', result);
+  const uriMetadata = generateImageURI(trxMetadata);
 
-  const responseMint = await mintNFT(uri);
+  console.log('result metadata', trxMetadata, uriMetadata);
+
+  const responseMint = await mintNFT(uriMetadata);
 
   console.log("response mint", responseMint);
 

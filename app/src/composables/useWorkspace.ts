@@ -1,7 +1,7 @@
 import { computed, Ref, ref, UnwrapRef } from 'vue'
 import { AnchorWallet, useAnchorWallet } from 'solana-wallets-vue'
 import { Connection, PublicKey } from '@solana/web3.js'
-import { AnchorProvider, Program } from '@project-serum/anchor'
+import { Address, AnchorProvider, Program } from '@project-serum/anchor'
 import { ethers } from "ethers";
 import idl from '@/anchor/idl/solana_twitter.json'
 import { SolanaTwitter } from '@/anchor/types/solana_twitter';
@@ -50,6 +50,23 @@ export const initWorkspace = () => {
 
 export function isCartesiDAppEnv() {
     return localStorage.getItem('ctsi_sol') === '1'
+}
+
+export function getUserAddress(): Address {
+    const { program, wallet } = useWorkspace()
+
+    const owner = wallet?.value?.publicKey;
+
+    if (!owner) {
+        throw new Error('You must be connected')
+    }
+
+    const [user] = PublicKey.findProgramAddressSync([
+        Buffer.from("user"),
+        owner.toBuffer(),
+    ], program.value.programId)
+
+    return user;
 }
 
 function createWorkspace() {
