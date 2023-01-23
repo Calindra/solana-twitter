@@ -28,9 +28,9 @@ const token = ref('0x67d269191c92Caf3cD7723F116c85e6E9bf55933')
 //const token = ref('')
 const vouchers = ref([])
 const profile = ref('')
-const profileLoading = ref(true)
+const profileLoading = ref(false)
 const pfpImage = ref('')
-const isProfileEdit = ref(true);
+const isProfileEdit = ref(false);
 
 watchEffect(() => {
     if (!wallet?.value) return;
@@ -187,7 +187,7 @@ function mask(address) {
 
 function onUploadImage(e) {
     profileLoading.value = true;
-    console.log('>>> upload image', { event: e });
+    // console.log('>>> upload image', { event: e });
 
     const target = e.target;
 
@@ -203,7 +203,6 @@ function onUploadImage(e) {
 
     reader.onload = function (e) {
         profile.value = e.target.result;
-        //     console.log(e.target.result);
     }
 
     reader.readAsDataURL(file);
@@ -228,8 +227,8 @@ function closeEditPFP() {
 </script>
 
 <template>
-    <section v-if="isProfileEdit" class="flex flex-col justify-center">
-        <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+    <section v-if="isProfileEdit" class="flex flex-col items-center py-4">
+        <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 mr-auto"
             type="submit">Voltar</button>
 
         <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.svg" />
@@ -254,21 +253,22 @@ function closeEditPFP() {
         <!-- <NFT-list /> -->
     </section>
     <section v-if="!isProfileEdit">
-        <div v-if="pfpImage">
-            <img class="img-fluid" :src="pfpImage" />
+        <div v-if="pfpImage" class="mb-4">
+            <img width="200" height="200" loading="lazy" :src="pfpImage" />
         </div>
 
-
-        <div v-if="wallet" class="border-b px-8 py-4 bg-gray-200 break-all">
+        <code v-if="wallet" class="block border-b border-r-8 bg-gray-200 px-6 py-4 break-all">
             {{ wallet.publicKey.toBase58() }}
-        </div>
+        </code>
 
-        <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+        <nav class="mt-4 flex justify-evenly">
+            <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
             @click="() => showVouchers = !showVouchers">
             Vouchers
         </button>
-        <button @click="openEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
-            type="submit">Update PFP</button>
+            <button @click="openEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+        type="submit">Atualizar foto de perfil</button>
+        </nav>
 
         <div v-if="isCartesi && showVouchers" class="border-b px-8 py-4 break-all">
             <input type="text" placeholder="token" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
