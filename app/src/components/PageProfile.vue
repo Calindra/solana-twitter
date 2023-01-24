@@ -32,6 +32,9 @@ const profileLoading = ref(false)
 const pfpImage = ref('')
 const isProfileEdit = ref(false);
 
+let file = ref(null)
+let serial = ref(null)
+
 watchEffect(() => {
     if (!wallet?.value) return;
     loadBalance(token.value, connection, wallet);
@@ -191,13 +194,13 @@ function onUploadImage(e) {
 
     const target = e.target;
 
-    const serial = target['serial-key'].files[0];
+    serial.value = target['serial-key'].files[0];
 
     console.log({ serial })
 
-    const file = target.thumbnail.files[0];
+    file.value = target.thumbnail.files[0];
 
-    if (!file) return;
+    if (!file.value) return;
 
     const reader = new FileReader();
 
@@ -205,10 +208,10 @@ function onUploadImage(e) {
         profile.value = e.target.result;
     }
 
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file.value);
 
     try {
-        uploadNFT(file, serial);
+        uploadNFT(file.value, serial.value);
     } catch (e) {
         console.error(e);
     } finally {
@@ -249,7 +252,8 @@ function previewThumb(e) {
         <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 ml-2 mr-auto"
             type="submit">Voltar</button>
 
-        <form class="flex flex-col items-stretch w-full" enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
+        <form class="flex flex-col items-stretch w-full" enctype="application/x-www-form-urlencoded"
+            @submit.prevent="onUploadImage">
             <section class="flex flex-col bg-white items-center border-b py-10">
                 <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem"
                     src="../assets/placeholder.svg" />
@@ -259,25 +263,36 @@ function previewThumb(e) {
                     <h2 class="font-bold text-xl">Foto de perfil</h2>
                 </header>
 
-                <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
-                    for="thumbnail">Escolher arquivo</label>
-                <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required
-                    hidden />
-                <button class="cursor-pointer mt-3 px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom" type="reset">
-                    <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
-                    Remover arquivo</button>
+                <footer class="grid grid-flow-row gap-1.5">
+                    <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+                        for="thumbnail">Escolher arquivo</label>
+                    <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file"
+                        accept="image/png, image/jpeg, image/gif" required hidden />
+                    <button
+                        class="cursor-pointer px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom"
+                        type="reset">
+                        <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
+                        Remover</button>
+                </footer>
             </section>
 
             <section class="flex flex-col bg-serial items-center border-b py-10">
-                <label for="serial-key">Chave do Arweave:</label>
-                <p>*A chave é apenas para teste temporiariamente.</p>
-                <input id="serial-key" name="serial-key" type="file" accept="application/json" hidden />
-                <button class="cursor-pointer mt-3 px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom" type="reset">
-                    <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
-                    Remover arquivo</button>
+                <header class="font-bold text-xl">Chave do Arweave:</header>
+                <p class="font-normal text-base">A chave é apenas para teste temporiariamente.</p>
+
+                <footer class="grid grid-flow-row gap-1.5 mt-3">
+                    <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+                        for="serial-key">Escolher arquivo</label>
+                    <input id="serial-key" name="serial-key" type="file" accept="application/json" hidden />
+                    <button
+                        class="cursor-pointer px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom"
+                        type="reset">
+                        <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
+                        Remover</button>
+                </footer>
             </section>
 
-            <button class="text-white font-semibold bg-blue-500 hover:bg-blue-700 rounded px-4 py-2"
+            <button class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
                 type="submit">Upload</button>
         </form>
 
