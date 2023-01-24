@@ -231,30 +231,37 @@ function closeEditPFP() {
         <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 mr-auto"
             type="submit">Voltar</button>
 
-        <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.svg" />
-        <img v-if="pfpImage" class="img-fluid thumbnail" :src="pfpImage" />
+        <form class="flex flex-col items-center" enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
+            <section class="flex flex-col bg-white">
+                <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem"
+                    src="../assets/placeholder.svg" />
+                <img v-if="pfpImage" class="thumbnail-round img-fluid thumbnail" :src="pfpImage" />
 
-        <form enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
+                <header class="pt-8 pb-7">
+                    <h2 class="font-bold text-xl">Foto de perfil</h2>
+                </header>
 
-            <h2 class="font-bold text-xl">Foto de perfil</h2>
+                <label class="cursor-pointer text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+                    for="thumbnail">Escolher arquivo</label>
+                <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required
+                    hidden />
+            </section>
 
-            <label class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500" for="thumbnail">Escolher arquivo</label>
-            <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required hidden />
-
-            <label for="serial-key">*Chave do Arweave:</label>
-            <input id="serial-key" name="serial-key" type="file" accept="application/json" />
-
+            <section class="block bg-gray-50">
+                <label for="serial-key">Chave do Arweave:</label>
+                <p>*A chave é apenas para teste temporiariamente.</p>
+                <input id="serial-key" name="serial-key" type="file" accept="application/json" />
+            </section>
 
             <button class="text-white font-semibold bg-blue-500 hover:bg-blue-700 rounded px-4 py-2"
                 type="submit">Upload</button>
         </form>
 
-        <p>*A chave é apenas para teste temporiariamente.</p>
         <!-- <NFT-list /> -->
     </section>
     <section v-if="!isProfileEdit">
         <div v-if="pfpImage" class="mb-4">
-            <img width="200" height="200" loading="lazy" :src="pfpImage" />
+            <img class="thumbnail thumbnail-round" width="200" height="200" loading="lazy" :src="pfpImage" />
         </div>
 
         <code v-if="wallet" class="block border-b border-r-8 bg-gray-200 px-6 py-4 break-all">
@@ -263,11 +270,11 @@ function closeEditPFP() {
 
         <nav class="mt-4 flex justify-evenly">
             <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
-            @click="() => showVouchers = !showVouchers">
-            Vouchers
-        </button>
+                @click="() => showVouchers = !showVouchers">
+                Vouchers
+            </button>
             <button @click="openEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
-        type="submit">Atualizar foto de perfil</button>
+                type="submit">Atualizar foto de perfil</button>
         </nav>
 
         <div v-if="isCartesi && showVouchers" class="border-b px-8 py-4 break-all">
@@ -339,5 +346,9 @@ th {
 
 .thumbnail {
     max-width: 200px;
+}
+
+.thumbnail-round {
+    border-radius: 50%;
 }
 </style>
