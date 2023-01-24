@@ -224,18 +224,34 @@ function closeEditPFP() {
     isProfileEdit.value = false;
 }
 
+function previewThumb(e) {
+    const { target } = e;
+
+    const file = target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        pfpImage.value = e.target.result;
+    }
+
+    reader.readAsDataURL(file);
+}
+
 </script>
 
 <template>
     <section v-if="isProfileEdit" class="flex flex-col items-center py-4">
-        <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 mr-auto"
+        <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 ml-2 mr-auto"
             type="submit">Voltar</button>
 
-        <form class="flex flex-col items-center" enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
-            <section class="flex flex-col bg-white">
+        <form class="flex flex-col items-stretch w-full" enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
+            <section class="flex flex-col bg-white items-center border-b py-10">
                 <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem"
                     src="../assets/placeholder.svg" />
-                <img v-if="pfpImage" class="thumbnail-round img-fluid thumbnail" :src="pfpImage" />
+                <img v-if="pfpImage" class="thumbnail-round thumbnail" width="200" height="200" :src="pfpImage" />
 
                 <header class="pt-8 pb-7">
                     <h2 class="font-bold text-xl">Foto de perfil</h2>
@@ -243,11 +259,11 @@ function closeEditPFP() {
 
                 <label class="cursor-pointer text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
                     for="thumbnail">Escolher arquivo</label>
-                <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required
+                <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required
                     hidden />
             </section>
 
-            <section class="block bg-gray-50">
+            <section class="flex flex-col bg-serial items-center border-b py-10">
                 <label for="serial-key">Chave do Arweave:</label>
                 <p>*A chave é apenas para teste temporiariamente.</p>
                 <input id="serial-key" name="serial-key" type="file" accept="application/json" />
@@ -350,5 +366,9 @@ th {
 
 .thumbnail-round {
     border-radius: 50%;
+}
+
+.bg-serial {
+    background-color: #FAFBFC;
 }
 </style>
