@@ -21,8 +21,8 @@ async function setPFP() {
 
 </script>
 <template>
-    <div style="border-radius: 5px; padding: 10px;">
-        <img :src="image.src" />
-        <button @click="setPFP">Choose as PFP</button>
+    <div class="p-3 rounded-md">
+        <img :src="image.src" alt="Image from NFT wallet" />
+        <button class="cursor-pointer m-auto mt-3 text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500 hover:bg-blue-500" @click="setPFP">Choose as PFP</button>
     </div>
 </template>

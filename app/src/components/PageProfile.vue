@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { paginateTweets, authorFilter, uploadNFT, getPFP } from '@/api'
 import TweetForm from '@/components/TweetForm'
 import TweetList from '@/components/TweetList'
-// import NFTList from '@/components/NFTList'
+import NFTList from '@/components/NFTList'
 import { useWorkspace, isCartesiDAppEnv } from '@/composables'
 import { cartesiRollups } from '@/cartesi/utils/cartesi'
 import { IERC20__factory } from "@cartesi/rollups";
@@ -317,7 +317,7 @@ function onChangePFP(e) {
         <NFT-list />
     </section>
     <section v-if="!isProfileEdit">
-        <div v-if="pfpImage" class="mb-4">
+        <div v-if="pfpImage" class="py-4 flex justify-center">
             <img class="thumbnail thumbnail-round" width="200" height="200" loading="lazy" :src="pfpImage" />
         </div>
 
