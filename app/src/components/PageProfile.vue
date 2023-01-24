@@ -310,11 +310,19 @@ function onChangePFP(e) {
                 </footer>
             </section>
 
-            <button class="cursor-pointer ml-auto mt-3 text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+            <button class="cursor-pointer ml-auto mt-3 mr-3 text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
                 type="submit">Salvar mudanças</button>
         </form>
 
-        <NFT-list />
+        <section class="px-3">
+            <header>
+                <h2 class="text-xl font-bold">Imagens na carteira para utilizar</h2>
+            </header>
+
+            <ul class="grid grid-flow-row gap-2.5">
+                <NFT-list />
+            </ul>
+        </section>
     </section>
     <section v-if="!isProfileEdit">
         <div v-if="pfpImage" class="py-4 flex justify-center">
