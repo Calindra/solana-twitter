@@ -230,11 +230,9 @@ function closeEditPFP() {
 }
 
 function previewThumb(e) {
-    const { target } = e;
+    onChangePFP(e);
 
-    const file = target.files[0];
-
-    if (!file) return;
+    if (!file.value) return;
 
     const reader = new FileReader();
 
@@ -242,7 +240,25 @@ function previewThumb(e) {
         pfpImage.value = e.target.result;
     }
 
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file.value);
+}
+
+function resetPFP() {
+    file.value = null
+}
+
+function resetSerial() {
+    serial.value = null
+}
+
+function onChangeSerial(e) {
+    const { target } = e;
+    serial.value = target.files[0];
+}
+
+function onChangePFP(e) {
+    const { target } = e;
+    file.value = target.files[0];
 }
 
 </script>
@@ -269,8 +285,9 @@ function previewThumb(e) {
                     <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file"
                         accept="image/png, image/jpeg, image/gif" required hidden />
                     <button
+                        v-if="!!file"
                         class="cursor-pointer px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom"
-                        type="reset">
+                        type="button" @click="resetPFP">
                         <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
                         Remover</button>
                 </footer>
@@ -283,20 +300,21 @@ function previewThumb(e) {
                 <footer class="grid grid-flow-row gap-1.5 mt-3">
                     <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
                         for="serial-key">Escolher arquivo</label>
-                    <input id="serial-key" name="serial-key" type="file" accept="application/json" hidden />
+                    <input id="serial-key" @change="onChangeSerial" name="serial-key" type="file" accept="application/json" hidden />
                     <button
+                        v-if="!!serial"
                         class="cursor-pointer px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom"
-                        type="reset">
+                        type="button" @click="resetSerial">
                         <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
                         Remover</button>
                 </footer>
             </section>
 
-            <button class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
-                type="submit">Upload</button>
+            <button class="cursor-pointer ml-auto mt-3 text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+                type="submit">Salvar mudanças</button>
         </form>
 
-        <!-- <NFT-list /> -->
+        <NFT-list />
     </section>
     <section v-if="!isProfileEdit">
         <div v-if="pfpImage" class="mb-4">
