@@ -321,14 +321,13 @@ function onChangePFP(e) {
                 <h2 class="text-xl font-bold">Imagens na carteira para utilizar</h2>
             </header>
 
-            <ul class="grid grid-flow-row gap-2.5">
+            <ul class="flex justify-evenly flex-row flex-wrap gap-2.5">
                 <NFT-list />
             </ul>
         </section>
     </section>
     <section v-if="!isProfileEdit">
         <div v-if="pfpImage" class="py-4 flex justify-center">
-            <!-- <img class="thumbnail thumbnail-round" width="200" height="200" loading="lazy" :src="pfpImage" /> -->
             <ProfileImage v-if="pfpImage" :image="pfpImage" />
         </div>
 
