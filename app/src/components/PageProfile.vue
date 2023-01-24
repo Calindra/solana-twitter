@@ -222,6 +222,8 @@ function openEditPFP() {
 
 function closeEditPFP() {
     isProfileEdit.value = false;
+    pfpImage.value = '';
+    loadPFP();
 }
 
 function previewThumb(e) {
@@ -261,12 +263,14 @@ function previewThumb(e) {
                     for="thumbnail">Escolher arquivo</label>
                 <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required
                     hidden />
+                <input type="reset" value="Resetar"/>
             </section>
 
             <section class="flex flex-col bg-serial items-center border-b py-10">
                 <label for="serial-key">Chave do Arweave:</label>
                 <p>*A chave é apenas para teste temporiariamente.</p>
                 <input id="serial-key" name="serial-key" type="file" accept="application/json" />
+                <input type="reset" value="Resetar"/>
             </section>
 
             <button class="text-white font-semibold bg-blue-500 hover:bg-blue-700 rounded px-4 py-2"
