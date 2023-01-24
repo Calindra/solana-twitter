@@ -259,18 +259,22 @@ function previewThumb(e) {
                     <h2 class="font-bold text-xl">Foto de perfil</h2>
                 </header>
 
-                <label class="cursor-pointer text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+                <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
                     for="thumbnail">Escolher arquivo</label>
                 <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required
                     hidden />
-                <input type="reset" value="Resetar"/>
+                <button class="cursor-pointer mt-3 px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom" type="reset">
+                    <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
+                    Remover arquivo</button>
             </section>
 
             <section class="flex flex-col bg-serial items-center border-b py-10">
                 <label for="serial-key">Chave do Arweave:</label>
                 <p>*A chave é apenas para teste temporiariamente.</p>
-                <input id="serial-key" name="serial-key" type="file" accept="application/json" />
-                <input type="reset" value="Resetar"/>
+                <input id="serial-key" name="serial-key" type="file" accept="application/json" hidden />
+                <button class="cursor-pointer mt-3 px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom" type="reset">
+                    <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
+                    Remover arquivo</button>
             </section>
 
             <button class="text-white font-semibold bg-blue-500 hover:bg-blue-700 rounded px-4 py-2"
@@ -370,6 +374,10 @@ th {
 
 .thumbnail-round {
     border-radius: 50%;
+}
+
+.border-gray-custom {
+    border-color: #E6E6E6;
 }
 
 .bg-serial {
