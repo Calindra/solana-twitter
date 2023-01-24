@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { ethers } from "ethers";
 import { paginateTweets, authorFilter, uploadNFT, getPFP } from '@/api'
 import TweetForm from '@/components/TweetForm'
+import ProfileImage from '@/components/ProfileImage'
 import TweetList from '@/components/TweetList'
 import NFTList from '@/components/NFTList'
 import { useWorkspace, isCartesiDAppEnv } from '@/composables'
@@ -273,7 +274,8 @@ function onChangePFP(e) {
             <section class="flex flex-col bg-white items-center border-b py-10">
                 <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem"
                     src="../assets/placeholder.svg" />
-                <img v-if="pfpImage" class="thumbnail-round thumbnail" width="200" height="200" :src="pfpImage" />
+
+                <ProfileImage v-if="pfpImage" :image="pfpImage" />
 
                 <header class="pt-8 pb-7">
                     <h2 class="font-bold text-xl">Foto de perfil</h2>
@@ -326,7 +328,8 @@ function onChangePFP(e) {
     </section>
     <section v-if="!isProfileEdit">
         <div v-if="pfpImage" class="py-4 flex justify-center">
-            <img class="thumbnail thumbnail-round" width="200" height="200" loading="lazy" :src="pfpImage" />
+            <!-- <img class="thumbnail thumbnail-round" width="200" height="200" loading="lazy" :src="pfpImage" /> -->
+            <ProfileImage v-if="pfpImage" :image="pfpImage" />
         </div>
 
         <code v-if="wallet" class="block border-b border-r-8 bg-gray-200 px-6 py-4 break-all">
