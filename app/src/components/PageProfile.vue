@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { ethers } from "ethers";
 import { paginateTweets, authorFilter, uploadNFT, getPFP } from '@/api'
 import TweetForm from '@/components/TweetForm'
+import ProfileImage from '@/components/ProfileImage'
 import TweetList from '@/components/TweetList'
 import NFTList from '@/components/NFTList'
 import { useWorkspace, isCartesiDAppEnv } from '@/composables'
@@ -30,6 +31,11 @@ const vouchers = ref([])
 const profile = ref('')
 const profileLoading = ref(false)
 const pfpImage = ref('')
+const isProfileEdit = ref(false);
+
+let file = ref(null)
+let serial = ref(null)
+
 watchEffect(() => {
     if (!wallet?.value) return;
     loadBalance(token.value, connection, wallet);
@@ -43,7 +49,7 @@ watchEffect(() => {
 async function loadPFP() {
     try {
         pfpImage.value = await getPFP()
-    } catch(e) {
+    } catch (e) {
         console.log('Load pfp error', e.message)
     }
 }
@@ -97,7 +103,7 @@ async function loadBalance(ethTokenAddress, connection) {
         );
         const balance = await erc20Contract.balanceOf(address)
         ethersTokenAmount.value = balance
-    } catch(e) {
+    } catch (e) {
         console.log('erc20 balance error')
     }
 }
@@ -185,29 +191,28 @@ function mask(address) {
 
 function onUploadImage(e) {
     profileLoading.value = true;
-    console.log('>>> upload image', { event: e });
+    // console.log('>>> upload image', { event: e });
 
     const target = e.target;
 
-    const serial = target['serial-key'].files[0];
+    serial.value = target['serial-key'].files[0];
 
     console.log({ serial })
 
-    const file = target.thumbnail.files[0];
+    file.value = target.thumbnail.files[0];
 
-    if (!file) return;
+    if (!file.value) return;
 
     const reader = new FileReader();
 
     reader.onload = function (e) {
         profile.value = e.target.result;
-    //     console.log(e.target.result);
     }
 
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file.value);
 
     try {
-        uploadNFT(file, serial);
+        uploadNFT(file.value, serial.value);
     } catch (e) {
         console.error(e);
     } finally {
@@ -215,85 +220,183 @@ function onUploadImage(e) {
     }
 }
 
+function openEditPFP() {
+    isProfileEdit.value = true;
+}
+
+function closeEditPFP() {
+    isProfileEdit.value = false;
+    pfpImage.value = '';
+    loadPFP();
+}
+
+function previewThumb(e) {
+    onChangePFP(e);
+
+    if (!file.value) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        pfpImage.value = e.target.result;
+    }
+
+    reader.readAsDataURL(file.value);
+}
+
+function resetPFP() {
+    file.value = null
+}
+
+function resetSerial() {
+    serial.value = null
+}
+
+function onChangeSerial(e) {
+    const { target } = e;
+    serial.value = target.files[0];
+}
+
+function onChangePFP(e) {
+    const { target } = e;
+    file.value = target.files[0];
+}
+
 </script>
 
 <template>
-    <div>
-        <img :src="pfpImage" />
-    </div>
-    <div v-if="!profileLoading">
-        <img v-if="profile" class="img-fluid thumbnail" alt="Imagem do usuário" :src="profile" />
-        <img v-if="!profile" class="img-fluid thumbnail" alt="Usuário sem imagem" src="../assets/placeholder.jpg" />
-        <form enctype="application/x-www-form-urlencoded" @submit.prevent="onUploadImage">
-            <label for="serial-key">*Chave do Arweave:</label>
-            <input id="serial-key" name="serial-key" type="file" accept="application/json" />
-            <label class="block" for="thumbnail">Imagem de perfil:</label>
-            <input id="thumbnail" name="thumbnail" type="file" accept="image/png, image/jpeg, image/gif" required />
-            <button class="text-white font-semibold rounded-full p-2 bg-pink-500" type="submit">Atualizar</button>
+    <section v-if="isProfileEdit" class="flex flex-col items-center py-4">
+        <button @click="closeEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500 ml-2 mr-auto"
+            type="submit">Voltar</button>
+
+        <form class="flex flex-col items-stretch w-full" enctype="application/x-www-form-urlencoded"
+            @submit.prevent="onUploadImage">
+            <section class="flex flex-col bg-white items-center border-b py-10">
+                <img v-if="!profile && !pfpImage" class="img-fluid thumbnail" alt="Usuário sem imagem"
+                    src="../assets/placeholder.svg" />
+
+                <ProfileImage v-if="pfpImage" :image="pfpImage" />
+
+                <header class="pt-8 pb-7">
+                    <h2 class="font-bold text-xl">Foto de perfil</h2>
+                </header>
+
+                <footer class="grid grid-flow-row gap-1.5">
+                    <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+                        for="thumbnail">Escolher arquivo</label>
+                    <input @change="previewThumb" id="thumbnail" name="thumbnail" type="file"
+                        accept="image/png, image/jpeg, image/gif" required hidden />
+                    <button
+                        v-if="!!file"
+                        class="cursor-pointer px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom"
+                        type="button" @click="resetPFP">
+                        <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
+                        Remover</button>
+                </footer>
+            </section>
+
+            <section class="flex flex-col bg-serial items-center border-b py-10">
+                <header class="font-bold text-xl">Chave do Arweave:</header>
+                <p class="font-normal text-base">A chave é apenas para teste temporiariamente.</p>
+
+                <footer class="grid grid-flow-row gap-1.5 mt-3">
+                    <label class="cursor-pointer text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+                        for="serial-key">Escolher arquivo</label>
+                    <input id="serial-key" @change="onChangeSerial" name="serial-key" type="file" accept="application/json" hidden />
+                    <button
+                        v-if="!!serial"
+                        class="cursor-pointer px-9 py-2.5 rounded-full font-semibold bg-white text-pink-500 border border-gray-custom"
+                        type="button" @click="resetSerial">
+                        <img class="inline" src="../assets/delete.svg" alt="ícone de lixeira" />
+                        Remover</button>
+                </footer>
+            </section>
+
+            <button class="cursor-pointer ml-auto mt-3 mr-3 text-white px-9 py-2.5 rounded-full font-semibold bg-pink-500"
+                type="submit">Salvar mudanças</button>
         </form>
-        <p>*A chave é apenas para teste temporiariamente.</p>
-    </div>
-    <progress v-if="profileLoading" max="100" min="0"></progress>
-    <div v-if="wallet" class="border-b px-8 py-4 bg-gray-50 break-all">
-        {{ wallet.publicKey.toBase58() }}
-    </div>
-    <NFT-list></NFT-list>
 
-    <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
-        @click="() => showVouchers = !showVouchers">
-        Vouchers
-    </button>
+        <section class="px-3">
+            <header>
+                <h2 class="text-xl font-bold">Imagens na carteira para utilizar</h2>
+            </header>
 
-    <div v-if="isCartesi && showVouchers" class="border-b px-8 py-4 break-all">
-        <input type="text" placeholder="token" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
-            :value="effectiveToken" @input="token = $event.target.value">
-        <div class="py-4 break-all">
-            <input type="text" placeholder="amount" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
-                :value="effectiveAmount" @input="amount = $event.target.value">
+            <ul class="flex justify-evenly flex-row flex-wrap gap-2.5">
+                <NFT-list />
+            </ul>
+        </section>
+    </section>
+    <section v-if="!isProfileEdit">
+        <div v-if="pfpImage" class="py-4 flex justify-center">
+            <ProfileImage v-if="pfpImage" :image="pfpImage" />
         </div>
-        <button style="margin-right: 7px;" class="text-white px-4 py-2 rounded-full font-semibold" :disabled="!canTweet"
-            :class="canTweet ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'" @click="send">
-            Transfer from L1 to L2
-        </button>
-        <button class="text-white px-4 py-2 rounded-full font-semibold" :disabled="!canTweet"
-            :class="canTweet ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'" @click="emitVoucher">
-            Emit Voucher
-        </button>
-        <div class="px-6 py-4 break-all">
-            L1 amount: {{ ethersTokenAmount }}
+
+        <code v-if="wallet" class="block border-b border-r-8 bg-gray-200 px-6 py-4 break-all">
+            {{ wallet.publicKey.toBase58() }}
+        </code>
+
+        <nav class="mt-4 flex justify-evenly">
+            <button class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+                @click="() => showVouchers = !showVouchers">
+                Vouchers
+            </button>
+            <button @click="openEditPFP" class="text-white px-4 py-2 rounded-full font-semibold bg-pink-500"
+                type="submit">Atualizar foto de perfil</button>
+        </nav>
+
+        <div v-if="isCartesi && showVouchers" class="border-b px-8 py-4 break-all">
+            <input type="text" placeholder="token" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
+                :value="effectiveToken" @input="token = $event.target.value">
+            <div class="py-4 break-all">
+                <input type="text" placeholder="amount" class="text-pink-500 rounded-full pl-10 pr-4 py-2 bg-gray-100"
+                    :value="effectiveAmount" @input="amount = $event.target.value">
+            </div>
+            <button style="margin-right: 7px;" class="text-white px-4 py-2 rounded-full font-semibold"
+                :disabled="!canTweet" :class="canTweet ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'"
+                @click="send">
+                Transfer from L1 to L2
+            </button>
+            <button class="text-white px-4 py-2 rounded-full font-semibold" :disabled="!canTweet"
+                :class="canTweet ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'" @click="emitVoucher">
+                Emit Voucher
+            </button>
+            <div class="px-6 py-4 break-all">
+                L1 amount: {{ ethersTokenAmount }}
+            </div>
+            <div class="px-6 break-all">
+                L2 amount: {{ solanaTokenAmount }}
+            </div>
+            <table style="margin-top: 7px;">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>token</th>
+                        <th>recipient</th>
+                        <th>amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="voucher in vouchers" :key="voucher.id">
+                        <td>{{ voucher.id }}</td>
+                        <td>{{ mask(voucher.destination) }}</td>
+                        <td>{{ mask(voucher.extra?.recipient) }}</td>
+                        <td>{{ voucher.extra?.amount?.toString() }}</td>
+                        <td>
+                            <button :disabled="!voucher.proof" class="text-white px-4 py-2 rounded-full font-semibold"
+                                :class="voucher.proof ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'"
+                                @click="() => execVoucher(voucher.id)">
+                                Exec
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="px-6 break-all">
-            L2 amount: {{ solanaTokenAmount }}
-        </div>
-        <table style="margin-top: 7px;">
-            <thead>
-                <tr>
-                    <th>id</th>
-                    <th>token</th>
-                    <th>recipient</th>
-                    <th>amount</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="voucher in vouchers" :key="voucher.id">
-                    <td>{{ voucher.id }}</td>
-                    <td>{{ mask(voucher.destination) }}</td>
-                    <td>{{ mask(voucher.extra?.recipient) }}</td>
-                    <td>{{ voucher.extra?.amount?.toString() }}</td>
-                    <td>
-                        <button :disabled="!voucher.proof" class="text-white px-4 py-2 rounded-full font-semibold"
-                            :class="voucher.proof ? 'bg-pink-500' : 'bg-pink-300 cursor-not-allowed'"
-                            @click="() => execVoucher(voucher.id)">
-                            Exec
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <tweet-form @added="addTweet"></tweet-form>
-    <tweet-list v-model:tweets="tweets" :loading="loading" :has-more="hasNextPage" @more="getNextPage"></tweet-list>
+        <tweet-form @added="addTweet"></tweet-form>
+        <tweet-list v-model:tweets="tweets" :loading="loading" :has-more="hasNextPage" @more="getNextPage"></tweet-list>
+    </section>
+
 </template>
 
 <style scoped>
@@ -310,5 +413,17 @@ th {
 
 .thumbnail {
     max-width: 200px;
+}
+
+.thumbnail-round {
+    border-radius: 50%;
+}
+
+.border-gray-custom {
+    border-color: #E6E6E6;
+}
+
+.bg-serial {
+    background-color: #FAFBFC;
 }
 </style>
