@@ -216,6 +216,7 @@ export const mintNFT = async (uri: URL) => {
 async function initializeAccount(mintAddress: PublicKey): Promise<void> {
   try {
     await setNFTasPFP({ mintAddress });
+    alert('Atualizado com sucesso!')
   } catch (e) {
     console.error(e);
     throw e;
